@@ -1,4 +1,5 @@
-﻿using BepInEx;
+﻿using System;
+using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 
@@ -20,5 +21,7 @@ public class Plugin : BaseUnityPlugin
         Logger = base.Logger;
         Instance = this;
         _harmony.PatchAll();
+        
+        FungameJson.Initialize();
     }
 }

@@ -44,6 +44,9 @@
     <Reference Include="Mono.Security">
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Mono.Security.dll</HintPath>
     </Reference>
+    <Reference Include="MossLib">
+      <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\Moss Lib\MossLib.dll</HintPath>
+    </Reference>
     <Reference Include="Multiupdater">
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\KrokMP\Multiupdater.dll</HintPath>
     </Reference>

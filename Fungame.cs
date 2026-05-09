@@ -9,4 +9,5 @@ public class Fungame
     public string Version { get; set; }
     public List<string> Author { get; set; }
     public string Description { get; set; }
+    public List<string> Feature { get; set; }
 }

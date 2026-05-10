@@ -18,5 +18,5 @@ public class MapData
     public int X { get; set; }
     public int Y { get; set; }
     public int[][] Blocks { get; set; } = [];
-    public int[][] Items { get; set; } = [];
+    public string[][] Items { get; set; } = [];
 }

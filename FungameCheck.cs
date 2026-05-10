@@ -204,7 +204,7 @@ private static bool IsValidVersion(string version)
         return parts.Length is >= 2 and <= 4 && parts.All(part => int.TryParse(part, out _));
     }
 
-    private static void ValidateMapData(JObject mapObject, List<string> errors)
+ private static void ValidateMapData(JObject mapObject, List<string> errors)
     {
         if (mapObject == null)
         {
@@ -253,6 +253,44 @@ private static bool IsValidVersion(string version)
                     {
                         errors.Add($"地图 blocks 第 {i} 行必须是数组");
                         break;
+                    }
+                }
+            }
+        }
+
+        if (mapObject.ContainsKey("items") && mapObject["items"] != null)
+        {
+            if (mapObject["items"].Type != JTokenType.Array)
+            {
+                errors.Add("地图 items 字段必须是二维字符串数组");
+            }
+            else
+            {
+                var itemsArray = mapObject["items"] as JArray;
+                if (itemsArray != null && itemsArray.Count > 0)
+                {
+                    for (int i = 0; i < itemsArray.Count; i++)
+                    {
+                        if (itemsArray[i].Type != JTokenType.Array)
+                        {
+                            errors.Add($"地图 items 第 {i} 行必须是数组");
+                            break;
+                        }
+                        else
+                        {
+                            var rowArray = itemsArray[i] as JArray;
+                            if (rowArray != null)
+                            {
+                                for (int j = 0; j < rowArray.Count; j++)
+                                {
+                                    if (rowArray[j].Type != JTokenType.String)
+                                    {
+                                        errors.Add($"地图 items[{i}][{j}] 必须是字符串");
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

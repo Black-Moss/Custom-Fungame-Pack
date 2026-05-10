@@ -54,6 +54,9 @@ public class WorldGenerationPatch
                     Info($"正在加载Fungame地图: {fungame.Name}");
                     __instance.loadingText.text = $"正在加载Fungame地图: {fungame.Name}";
                     MapLoader.LoadAndApplyMapFromFungame(fungame);
+                    
+                    Tools.LogCla($"{fungame.Name} v{fungame.Version} by {fungame.Author}", Logger, true);
+                    Tools.LogCla($"{fungame.Description}", Logger);
                 }
                 else
                 {
@@ -69,8 +72,7 @@ public class WorldGenerationPatch
         {
             Error("没有有效的Fungame目录，请检查 Fungames 文件夹");
         }
-    }
-    
+    }    
     private static void Info(string text)
     {
         Tools.LogInfo(text, Logger);

@@ -1,10 +1,6 @@
-﻿using System;
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using HarmonyLib;
 using MossLib;
-using UnityEngine;
-using System.Reflection;
-using Debug = System.Diagnostics.Debug;
 
 namespace CustomFungamePack;
 
@@ -27,49 +23,19 @@ public class WorldGenerationPatch
     [HarmonyPostfix]
     public static void InitializationWorld(WorldGeneration __instance)
     {
-        for (int x = -76; x < 74; x++)
-        {
-            for (int y = -120; y < 58; y++)
-            {
-                SetBlock(x, y, 0);
-                Info($"{x}, {y}");
-            }
-        }
-        var chunksField = typeof(WorldGeneration).GetField("chunks", BindingFlags.NonPublic | BindingFlags.Instance);
-        Debug.Assert(chunksField != null, nameof(chunksField) + " != null");
-        if (chunksField.GetValue(__instance) is not Array chunks) return;
-        int upperBound1 = chunks.GetUpperBound(0);
-        int upperBound2 = chunks.GetUpperBound(1);
+        __instance.loadingText.text = "初始化Fungame地图...";
+
+        const int startX = -76;
+        const int endX = 74;
+        const int startY = -120;
+        const int endY = 58;
             
-        for (int lowerBound1 = chunks.GetLowerBound(0); lowerBound1 <= upperBound1; ++lowerBound1)
+        for (int x = startX; x < endX; x++)
         {
-            for (int lowerBound2 = chunks.GetLowerBound(1); lowerBound2 <= upperBound2; ++lowerBound2)
+            for (int y = startY; y < endY; y++)
             {
-                var chunk = chunks.GetValue(lowerBound1, lowerBound2) as UnityEngine.Tilemaps.Tilemap;
-                if (chunk != null)
-                {
-                    __instance.CreateBackground("steelBackground", chunk);
-                }
+                Tools.SetBlock(x, y, 0);
             }
-        }
-    }
-    
-    public static void SetBlock(int x, int y, ushort block)
-    {
-        Vector2 vector2 = new(x, y);
-        SetBlock(vector2, block);
-    }
-    
-    public static void SetBlock(Vector2 vector2, ushort block)
-    {
-        Tools.CheckForWorld();
-        try
-        {
-            WorldGeneration.world.SetBlock(WorldGeneration.world.WorldToBlockPos(vector2), block);
-        }
-        catch (Exception e)
-        { 
-            Error($"在 {vector2} 生成 {block} 失败：{e}");
         }
     }
     

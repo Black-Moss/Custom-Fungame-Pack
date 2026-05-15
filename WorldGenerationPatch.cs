@@ -5,11 +5,14 @@ using MossLib;
 using System.IO;
 using UnityEngine;
 
+// ReSharper disable InconsistentNaming
+
 namespace CustomFungamePack;
 
 [HarmonyPatch(typeof(WorldGeneration))]
-public class WorldGenerationPatch
+public static class WorldGenerationPatch
 {
+    private const string LogPrefix = "log.";
     private static readonly ManualLogSource Logger = Plugin.Logger;
     internal static WorldGeneration WorldGeneration;
     internal static Fungame CurrentFungame;
@@ -30,32 +33,30 @@ public class WorldGenerationPatch
                 var jsonContent = File.ReadAllText(fungameFilePath);
                 var fungame = Newtonsoft.Json.JsonConvert.DeserializeObject<Fungame>(jsonContent);
 
-                if (fungame != null)
+                if (fungame == null) return;
+                CurrentFungame = fungame;
+
+                ApplyFeaturesEarly(fungame.Feature);
+
+                if (fungame.Map != null)
                 {
-                    CurrentFungame = fungame;
-
-                    ApplyFeaturesEarly(fungame.Feature);
-
-                    if (fungame.Map != null)
-                    {
-                        WorldGeneration.biomeOverride = fungame.Map.Type;
-                        Info($"设置场景类型为: {fungame.Map.Type}");
-                    }
-                    else
-                    {
-                        SetDefaultSceneType(WorldGeneration);
-                    }
+                    WorldGeneration.biomeOverride = fungame.Map.Type;
+                    Info("world_generation.scene_type_set", fungame.Map.Type);
+                }
+                else
+                {
+                    SetDefaultSceneType(WorldGeneration);
                 }
             }
             else
             {
-                Error($"找不到 fungame.json 文件: {fungameFilePath}");
+                Error("error.no_fungame_file", fungameFilePath);
                 SetDefaultSceneType(WorldGeneration);
             }
         }
         else
         {
-            Error("没有有效的Fungame目录，请检查 Fungames 文件夹");
+            Error("error.no_valid_directories");
             SetDefaultSceneType(WorldGeneration);
         }
     }
@@ -64,7 +65,7 @@ public class WorldGenerationPatch
     {
         if (features == null || features.Count == 0)
         {
-            Info("未启用任何特性");
+            Info("world_generation.no_features_enabled");
             return;
         }
 
@@ -73,17 +74,18 @@ public class WorldGenerationPatch
             switch (feature.Key.ToLower())
             {
                 case "fullbright":
-                    Info("已启用宽容关卡模式");
+                    Info("world_generation.feature_enabled", ModLocale.GetFormat("feature.fullbright"));
                     Tools.RunCommand("fullbright");
                     break;
                 case "forgiving_level":
-                    Info("已启用仁慈关卡模式");
+                    Info("world_generation.feature_enabled", ModLocale.GetFormat("log.common.forgiving_level_mode"));
                     break;
                 case "gravity":
-                    Info($"已启用重力调整: {feature.Value}");
+                    Info("world_generation.feature_enabled_with_value", ModLocale.GetFormat("feature.gravity"),
+                        feature.Value);
                     break;
                 default:
-                    Warning($"未知的特性: {feature.Key}");
+                    Warning("world_generation.unknown_feature", feature.Key);
                     break;
             }
         }
@@ -106,11 +108,9 @@ public class WorldGenerationPatch
             }
         }
 
-        if (IsFeatureEnabled("gravity"))
-        {
-            var gravityScale = GetFeatureValue("gravity", FeatureConfig.GetDefault("gravity"));
-            Physics2D.gravity = new Vector2(0, -9.81f * gravityScale);
-        }
+        if (!IsFeatureEnabled("gravity")) return;
+        var gravityScale = GetFeatureValue("gravity");
+        Physics2D.gravity = new Vector2(0, -9.81f * gravityScale);
     }
 
     private static bool IsFeatureEnabled(string featureName)
@@ -118,12 +118,13 @@ public class WorldGenerationPatch
         return CurrentFungame?.Feature != null && CurrentFungame.Feature.ContainsKey(featureName);
     }
 
-    private static float GetFeatureValue(string featureName, float defaultValue = 1.0f)
+    private static float GetFeatureValue(string featureName)
     {
         if (CurrentFungame?.Feature != null && CurrentFungame.Feature.TryGetValue(featureName, out var value))
         {
             return value;
         }
+
         return FeatureConfig.GetDefault(featureName);
     }
 
@@ -132,53 +133,38 @@ public class WorldGenerationPatch
         __instance.biomeOverride = WorldGeneration.OverrideSceneType.Debug;
     }
 
-    // 跳过地形生成
-    [HarmonyPatch("WorldGenerateTerrain")]
-    [HarmonyPrefix]
-    public static bool SkipTerrainGeneration()
-    {
-        if (CurrentFungame?.Map?.SkipTerrain != false)
-        {
-            Info("已跳过地形生成");
-            return false;
-        }
-
-        return true;
-    }
-
-    // 跳过结构生成
-    [HarmonyPatch("WorldGenerateStructures")]
-    [HarmonyPrefix]
-    public static bool SkipStructureGeneration()
-    {
-        if (CurrentFungame?.Map?.SkipStructures != false)
-        {
-            Info("已跳过结构生成");
-            return false;
-        }
-
-        return true;
-    }
-
-    // 跳过背景生成
     [HarmonyPatch("WorldCreateBackground")]
     [HarmonyPrefix]
     public static bool SkipWorldCreateBackground()
     {
-        if (CurrentFungame?.Map?.SkipBackground != false)
-        {
-            Info("已跳过背景生成");
-            return false;
-        }
-
-        return true;
+        if (CurrentFungame?.Map?.SkipBackground != true) return true;
+        Info("world_generation.skip_generation", ModLocale.GetFormat("log.common.background"));
+        return false;
+    }
+    
+    [HarmonyPatch("WorldGenerateStructures")]
+    [HarmonyPrefix]
+    public static bool SkipWorldGenerateStructures()
+    {
+        if (CurrentFungame?.Map?.SkipStructures != true) return true;
+        Info("world_generation.skip_generation", ModLocale.GetFormat("log.common.structure"));
+        return false;
+    }
+    
+    [HarmonyPatch("WorldGenerateTerrain")]
+    [HarmonyPrefix]
+    public static bool SkipWorldGenerateTerrain()
+    {
+        if (CurrentFungame?.Map?.SkipTerrain != true) return true;
+        Info("world_generation.skip_generation", ModLocale.GetFormat("log.common.terrain"));
+        return false;
     }
 
     [HarmonyPatch("FinishWorldGeneration")]
     [HarmonyPostfix]
     public static void InitializationWorld()
     {
-        WorldGeneration.loadingText.text = "初始化Fungame地图...";
+        WorldGeneration.loadingText.text = Locale("world_generation.initializing_world");
 
         if (FungameCheck.ValidDirectories.Count > 0)
         {
@@ -192,61 +178,69 @@ public class WorldGenerationPatch
 
                 if (fungame?.Map != null)
                 {
-                    Info($"正在加载Fungame地图: {fungame.Name}");
-                    WorldGeneration.loadingText.text = $"正在加载Fungame地图: {fungame.Name}";
+                    Info("world_generation.loading_fungame_map", fungame.Name);
+                    WorldGeneration.loadingText.text = Locale("world_generation.loading_fungame_map", fungame.Name);
                     MapLoader.LoadAndApplyMapFromFungame(fungame);
-                    ExecuteStartupCommands(fungame.Command);
+                    ExecuteCommands(fungame);
 
-                    string authors = fungame.Author != null && fungame.Author.Count > 0
+                    string authors = fungame.Author is { Count: > 0 }
                         ? string.Join(", ", fungame.Author)
                         : "Unknown";
                     Tools.LogCla($"{fungame.Name} v{fungame.Version}\nby {authors}", Logger, true);
                     Tools.LogCla($"{fungame.Description}", Logger, false, 6f);
-                    Tools.SetBlock(0, 0, 6);
                 }
                 else
                 {
-                    Warning($"Fungame {fungame?.Name ?? "未知"} 不包含地图数据");
+                    Warning("world_generation.no_map_data", fungame?.Name ?? "Unknown");
                 }
             }
             else
             {
-                Error($"找不到 fungame.json 文件: {fungameFilePath}");
+                Error("error.no_fungame_file", fungameFilePath);
             }
         }
         else
         {
-            Error("没有有效的Fungame目录，请检查 Fungames 文件夹");
+            Error("error.no_valid_directories");
         }
     }
 
-    private static void ExecuteStartupCommands(List<string> commands)
+    private static void ExecuteCommands(Fungame fungame)
     {
+        var commands = fungame.Command;
         if (commands == null || commands.Count == 0)
         {
-            Info("未启用任何启动命令");
+            Info("world_generation.no_commands", ModLocale.GetFormat("log.common.startup_command"));
             return;
         }
 
         foreach (var command in commands)
         {
-            Info($"执行启动命令: {command}");
+            Info("world_generation.executing_command", ModLocale.GetFormat("log.common.startup_command"), command);
             Tools.RunCommand(command);
         }
     }
 
-    private static void Info(string text)
+    private static void Info(string key, params object[] args)
     {
-        Tools.LogInfo(text, Logger);
+        var message = ModLocale.GetFormat($"{LogPrefix}{key}", args);
+        Tools.LogInfo(message, Logger);
     }
 
-    private static void Error(string text)
+    private static void Error(string key, params object[] args)
     {
-        Tools.LogError(text, Logger);
+        var message = ModLocale.GetFormat($"{LogPrefix}{key}", args);
+        Tools.LogError(message, Logger);
     }
 
-    private static void Warning(string text)
+    private static void Warning(string key, params object[] args)
     {
-        Tools.LogWarning(text, Logger);
+        var message = ModLocale.GetFormat($"{LogPrefix}{key}", args);
+        Tools.LogWarning(message, Logger);
+    }
+
+    private static string Locale(string key, params object[] args)
+    {
+        return ModLocale.GetFormat($"{LogPrefix}{key}", args);
     }
 }

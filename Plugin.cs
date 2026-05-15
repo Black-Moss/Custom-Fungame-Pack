@@ -20,8 +20,10 @@ public class Plugin : BaseUnityPlugin
     {
         Logger = base.Logger;
         Instance = this;
-        _harmony.PatchAll();
         
+        ModLocale.Initialize(Logger);
+        _harmony.PatchAll();
+        // ModCommand.Initialize(Logger);
         FungameCheck.Initialize();
     }
 }

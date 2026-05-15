@@ -35,32 +35,17 @@
     <Reference Include="BepInEx">
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
-    <Reference Include="KrokoshaCasualtiesMP">
-      <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\KrokMP\KrokoshaCasualtiesMP.dll</HintPath>
-    </Reference>
-    <Reference Include="LiteNetLib">
-      <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\KrokMP\LiteNetLib.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Security">
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="MossLib">
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\Moss Lib\MossLib.dll</HintPath>
     </Reference>
-    <Reference Include="Multiupdater">
-      <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\KrokMP\Multiupdater.dll</HintPath>
-    </Reference>
     <Reference Include="netstandard">
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\netstandard.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="OpusSharp.Core">
-      <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\KrokMP\OpusSharp.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Steamworks.NET">
-      <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\KrokMP\Steamworks.NET.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.Composition">
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\System.ComponentModel.Composition.dll</HintPath>

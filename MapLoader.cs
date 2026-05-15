@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BepInEx.Logging;
 using MossLib;
 
@@ -6,6 +7,7 @@ namespace CustomFungamePack;
 
 public static class MapLoader
 {
+    private const string LogPrefix = "log.";
     private static readonly ManualLogSource Logger = Plugin.Logger;
 
     public static void LoadAndApplyMapFromFungame(Fungame fungame)
@@ -14,20 +16,21 @@ public static class MapLoader
         {
             if (fungame?.Map == null)
             {
-                Logger.LogError("Fungame 或地图数据为空");
+                Error("map_loader.load_error");
                 return;
             }
 
             var mapData = fungame.Map;
             ValidateAndApplyMap(fungame);
+            ValidateAndApplyItems(fungame);
             
             var width = mapData.Blocks.Length;
             var height = mapData.Blocks.Length > 0 ? mapData.Blocks[0].Length : 0;
-            Logger.LogInfo($"成功加载地图: 起始坐标({mapData.X}, {mapData.Y}), 尺寸({width}x{height})");
+            Info("map_loader.load_success", mapData.X, mapData.Y, width, height);
         }
         catch (Exception ex)
         {
-            Logger.LogError($"加载地图失败: {ex.Message}");
+            Error("map_loader.load_failed", ex.Message);
         }
     }
     
@@ -36,13 +39,11 @@ public static class MapLoader
         var mapData = fungame.Map;
         if (mapData.Blocks == null || mapData.Blocks.Length == 0)
         {
-            Logger.LogWarning("地图中没有方块数据");
+            Warning("validation.no_data", ModLocale.GetFormat("log.common.map"), ModLocale.GetFormat("log.common.block"));
             return;
         }
 
-        var rowCount = mapData.Blocks.Length;
         var maxColCount = 0;
-        
         foreach (var row in mapData.Blocks)
         {
             if (row != null && row.Length > maxColCount)
@@ -51,38 +52,30 @@ public static class MapLoader
             }
         }
 
+        var rowCount = mapData.Blocks.Length;
         if (maxColCount == 0)
         {
-            Logger.LogWarning("地图行数据为空");
+            Warning("validation.row_data_empty", ModLocale.GetFormat("log.common.map"));
             return;
         }
 
-        var isIrregular = false;
-        for (int i = 0; i < rowCount; i++)
-        {
-            if (mapData.Blocks[i] == null || mapData.Blocks[i].Length != maxColCount)
-            {
-                isIrregular = true;
-                break;
-            }
-        }
-
+        var isIrregular = mapData.Blocks.Any(row => row == null || row.Length != maxColCount);
         if (isIrregular)
         {
-            Logger.LogWarning($"检测到不规则地图形状！正在填充为规则长方形 ({rowCount}x{maxColCount})...");
+            Warning("map_loader.irregular_shape", ModLocale.GetFormat("log.common.map"), rowCount, maxColCount);
             NormalizeMapShape(mapData, rowCount, maxColCount);
         }
 
-        Tools.CheckForWorld();
-        
+        var worldX = mapData.X;
+        var worldY = mapData.Y;
         var blockCount = 0;
         var failCount = 0;
-        
+
         for (int row = 0; row < rowCount; row++)
         {
-            if (mapData.Blocks[row] == null)
+            if (mapData.Blocks[row] == null || mapData.Blocks[row].Length == 0)
             {
-                Logger.LogWarning($"第 {row} 行为空，跳过");
+                Warning("map_loader.row_empty_skip", ModLocale.GetFormat("log.common.map"), row);
                 continue;
             }
 
@@ -90,15 +83,12 @@ public static class MapLoader
             {
                 var blockType = mapData.Blocks[row][col];
                 
-                if (blockType < 0)
+                if (blockType <= 0)
                 {
-                    Logger.LogWarning($"无效的方块类型 ({blockType}) 在位置 ({col}, {row})，跳过");
+                    worldX++;
                     continue;
                 }
-                
-                var worldX = mapData.X + col;
-                var worldY = mapData.Y - row;
-                
+
                 try
                 {
                     Tools.SetBlock(worldX, worldY, (ushort)blockType);
@@ -106,33 +96,33 @@ public static class MapLoader
                 }
                 catch (Exception ex)
                 {
+                    Error("map_loader.place_failed", worldX, worldY, ModLocale.GetFormat("log.common.block"), blockType, ex.Message);
                     failCount++;
-                    if (failCount <= 5)
-                    {
-                        Logger.LogError($"在 ({worldX}, {worldY}) 放置方块 {blockType} 失败: {ex.Message}");
-                    }
                 }
+
+                worldX++;
             }
+
+            worldX = mapData.X;
+            worldY--;
         }
 
         if (failCount > 0)
         {
-            Logger.LogWarning($"地图应用完成，成功放置 {blockCount} 个方块，失败 {failCount} 个");
+            Warning("map_loader.apply_complete_fail", ModLocale.GetFormat("log.common.map"), blockCount, ModLocale.GetFormat("log.common.block"), failCount);
         }
         else
         {
-            Logger.LogInfo($"地图应用完成，共放置 {blockCount} 个方块");
+            Info("map_loader.apply_complete", ModLocale.GetFormat("log.common.map"), blockCount, ModLocale.GetFormat("log.common.block"));
         }
-
-        ApplyItemsFromMap(mapData);
-        Tools.Tp(fungame.Spawn);
     }
 
-private static void ApplyItemsFromMap(MapData mapData)
+    private static void ValidateAndApplyItems(Fungame fungame)
     {
+        var mapData = fungame.Map;
         if (mapData.Items == null || mapData.Items.Length == 0)
         {
-            Logger.LogInfo("地图中没有物品数据");
+            Warning("validation.no_data", ModLocale.GetFormat("log.common.map"), ModLocale.GetFormat("log.common.item"));
             return;
         }
 
@@ -149,7 +139,7 @@ private static void ApplyItemsFromMap(MapData mapData)
 
         if (maxColCount == 0)
         {
-            Logger.LogWarning("物品行数据为空");
+            Warning("validation.row_data_empty", ModLocale.GetFormat("log.common.map"));
             return;
         }
 
@@ -165,7 +155,7 @@ private static void ApplyItemsFromMap(MapData mapData)
 
         if (isIrregular)
         {
-            Logger.LogWarning($"检测到不规则物品形状！正在填充为规则长方形 ({rowCount}x{maxColCount})...");
+            Warning("map_loader.irregular_shape", ModLocale.GetFormat("log.common.map"), rowCount, maxColCount);
             NormalizeItemShape(mapData, rowCount, maxColCount);
         }
 
@@ -176,7 +166,7 @@ private static void ApplyItemsFromMap(MapData mapData)
         {
             if (mapData.Items[row] == null)
             {
-                Logger.LogWarning($"物品第 {row} 行为空，跳过");
+                Warning("map_loader.row_empty_skip", ModLocale.GetFormat("log.common.item"), row);
                 continue;
             }
 
@@ -202,7 +192,7 @@ private static void ApplyItemsFromMap(MapData mapData)
                     itemFailCount++;
                     if (itemFailCount <= 5)
                     {
-                        Logger.LogError($"在 ({worldX}, {worldY}) 放置物品 {itemName} 失败: {ex.Message}");
+                        Error("map_loader.place_failed", worldX, worldY, ModLocale.GetFormat("log.common.item"), itemName, ex.Message);
                     }
                 }
             }
@@ -210,11 +200,11 @@ private static void ApplyItemsFromMap(MapData mapData)
 
         if (itemFailCount > 0)
         {
-            Logger.LogWarning($"物品应用完成，成功放置 {itemCount} 个物品，失败 {itemFailCount} 个");
+            Warning("map_loader.apply_complete_fail", ModLocale.GetFormat("log.common.item"), itemCount, ModLocale.GetFormat("log.common.item"), itemFailCount);
         }
         else
         {
-            Logger.LogInfo($"物品应用完成，共放置 {itemCount} 个物品");
+            Info("map_loader.apply_complete", ModLocale.GetFormat("log.common.item"), itemCount, ModLocale.GetFormat("log.common.item"));
         }
     }
 
@@ -251,7 +241,7 @@ private static void ApplyItemsFromMap(MapData mapData)
         }
         
         mapData.Items = normalizedItems;
-        Logger.LogInfo($"物品已规范化为 {rowCount}x{maxColCount} 的长方形，缺失部分已用空字符串填充");
+        Info("map_loader.normalized", ModLocale.GetFormat("log.common.item"), rowCount, maxColCount, ModLocale.GetFormat("log.common.empty_string"));
     }
     
     private static void NormalizeMapShape(MapData mapData, int rowCount, int maxColCount)
@@ -287,5 +277,24 @@ private static void ApplyItemsFromMap(MapData mapData)
         }
         
         mapData.Blocks = normalizedBlocks;
-        Logger.LogInfo($"地图已规范化为 {rowCount}x{maxColCount} 的长方形，缺失部分已用空气方块填充");
-    }}
+        Info("map_loader.normalized", ModLocale.GetFormat("log.common.map"), rowCount, maxColCount, ModLocale.GetFormat("log.common.air_block"));
+    }
+
+    private static void Info(string key, params object[] args)
+    {
+        var message = ModLocale.GetFormat($"{LogPrefix}{key}", args);
+        Tools.LogInfo(message, Logger);
+    }
+
+    private static void Error(string key, params object[] args)
+    {
+        var message = ModLocale.GetFormat($"{LogPrefix}{key}", args);
+        Tools.LogError(message, Logger);
+    }
+
+    private static void Warning(string key, params object[] args)
+    {
+        var message = ModLocale.GetFormat($"{LogPrefix}{key}", args);
+        Tools.LogWarning(message, Logger);
+    }
+}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BepInEx.Logging;
+using MossLib;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -10,48 +11,42 @@ namespace CustomFungamePack;
 
 public static class FungameCheck
 {
-    private static readonly ManualLogSource Logger = Plugin.Logger;
-    public static readonly string FungamesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fungames");
-    public static string[] FungamesDirectories;
+    private const string LogPrefix = "log.";
+    private static ManualLogSource Logger;
+    public static readonly string FungamesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fungames");
     public static readonly List<string> ValidDirectories = [];
-    public static readonly List<string> InvalidDirectories = [];
+    public static readonly List<string> checkFailDirectories = [];
+    public static readonly List<Fungame> Fungames = [];
 
     public static void Initialize()
     {
-        CheckFungameDirectory();
+        Logger = Plugin.Logger;
         LoadFungameDirectories();
-        CheckFungameDirectories();
     }
 
     private static void LoadFungameDirectories()
     {
-        FungamesDirectories = Directory.GetDirectories(FungamesDirectory);
-        Logger.LogInfo($"已读取 {FungamesDirectories.Length} 个Fungame文件夹");
-    }
+        var directories = Directory.GetDirectories(FungamesPath);
+        
+        // 早期初始化，直接使用 Logger，不依赖本地化
+        Logger.LogInfo($"已读取 {directories.Length} 个Fungame文件夹");
+        
+        ValidDirectories.Clear();
+        checkFailDirectories.Clear();
+        Fungames.Clear();
 
-    private static void CheckFungameDirectories()
-    {
-        var requiredFiles = new[] { "fungame.json" };
-
-        foreach (var fungamesDirectory in FungamesDirectories)
+        foreach (var fungamesDirectory in directories)
         {
             var missingFiles = (
                 from requiredFile
-                    in requiredFiles
+                    in new[] { "fungame.json" }
                 let filePath = Path.Combine(fungamesDirectory, requiredFile)
                 where !File.Exists(filePath)
                 select requiredFile).ToList();
 
             if (missingFiles.Count > 0)
             {
-                InvalidDirectories.Add(fungamesDirectory);
-                var folderName = Path.GetFileName(fungamesDirectory);
-                Logger.LogError($"Fungame目录缺少必需文件：{folderName}");
-                foreach (var missingFile in missingFiles)
-                {
-                    Logger.LogError($"  - 缺失文件: {missingFile}");
-                }
-
+                Logger.LogWarning($"{Path.GetFileName(fungamesDirectory)} 缺少文件: {string.Join(", ", missingFiles)}");
                 continue;
             }
 
@@ -60,7 +55,6 @@ public static class FungameCheck
 
         if (ValidDirectories.Count != 0)
         {
-            var checkFailDirectories = new List<string>();
             Logger.LogInfo($"有效目录: {ValidDirectories.Count} 个，正在加载中...");
             
             var directoriesToValidate = ValidDirectories.ToList();
@@ -68,8 +62,7 @@ public static class FungameCheck
             {
                 if (!ValidateAndLoadFungame(Path.Combine(fungame, "fungame.json")))
                 {
-                    var folderName = Path.GetFileName(fungame);
-                    Logger.LogWarning($"{folderName} 识别失败!");
+                    Logger.LogWarning($"{Path.GetFileName(fungame)} 识别失败!");
                     checkFailDirectories.Add(fungame);
                 }
             }
@@ -79,54 +72,33 @@ public static class FungameCheck
                 Logger.LogInfo($"目录识别失败: {checkFailDirectories.Count} 个：");
                 foreach (var failDirectory in checkFailDirectories)
                 {
-                    var folderName = Path.GetFileName(failDirectory);
-                    Logger.LogInfo($"- {folderName}");
+                    Logger.LogInfo($"- {Path.GetFileName(failDirectory)}");
                     ValidDirectories.Remove(failDirectory);
-                    InvalidDirectories.Add(failDirectory);
                 }
             }
         }
-
-        if (InvalidDirectories.Count != 0)
+    }
+    
+    private static bool ValidateAndLoadFungame(string filePath)
+    {
+        try
         {
-            Logger.LogInfo($"无效目录: {InvalidDirectories.Count} 个：");
-            foreach (var invalidDirectory in InvalidDirectories)
+            if (!File.Exists(filePath))
             {
-                var folderName = Path.GetFileName(invalidDirectory);
-                Logger.LogInfo($"- {folderName}");
+                Logger.LogError($"找不到 fungame.json 文件: {filePath}");
+                return false;
             }
-        }
-    }
 
-    private static void CheckFungameDirectory()
-    {
-        if (Directory.Exists(FungamesDirectory)) return;
-        
-        try
-        {
-            Directory.CreateDirectory(FungamesDirectory);
-            Logger.LogInfo($"Fungames目录不存在，已创建：{FungamesDirectory}");
-        }
-        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
-        {
-            Logger.LogError($"Fungames目录创建失败（权限不足）：{FungamesDirectory}，详情：{ex.Message}");
-        }
-    }
-
-private static bool ValidateAndLoadFungame(string filePath)
-    {
-        try
-        {
             var jsonContent = File.ReadAllText(filePath);
             var jsonObject = JObject.Parse(jsonContent);
             var errors = new List<string>();
             var warnings = new List<string>();
 
-            ValidateRequiredFieldWithDefault(jsonObject, "name", errors, warnings, "Unnamed Fungame");
-            ValidateRequiredFieldWithDefault(jsonObject, "id", errors, warnings, GenerateDefaultId(filePath));
-            ValidateRequiredFieldWithDefault(jsonObject, "version", errors, warnings, "1.0");
-            ValidateRequiredListFieldWithDefault(jsonObject, "author", errors, warnings, "Unknown");
-            ValidateRequiredFieldWithDefault(jsonObject, "description", errors, warnings, "No description provided");
+            ValidateRequiredFieldWithDefault(jsonObject, "name", warnings, "Unnamed Fungame");
+            ValidateRequiredFieldWithDefault(jsonObject, "id", warnings, GenerateDefaultId(filePath));
+            ValidateRequiredFieldWithDefault(jsonObject, "version", warnings, "1.0");
+            ValidateRequiredListFieldWithDefault(jsonObject, "author", warnings, "Unknown");
+            ValidateRequiredFieldWithDefault(jsonObject, "description", warnings, "No description provided");
             ValidateOptionalListField(jsonObject, "command", warnings);
 
             if (jsonObject["id"] != null && jsonObject["id"].Type == JTokenType.String)
@@ -134,30 +106,27 @@ private static bool ValidateAndLoadFungame(string filePath)
                 var idValue = jsonObject["id"].ToString();
                 if (!IsValidId(idValue))
                 {
-                    warnings.Add("id 字段只能包含小写字母、数字和下划线，已自动修正");
+                    warnings.Add(Locale("fungame_check.id_format_warning"));
                     jsonObject["id"] = SanitizeId(idValue);
                 }
             }
 
             if (jsonObject["author"] != null && jsonObject["author"].Type == JTokenType.Array)
             {
-                var authorArray = jsonObject["author"] as JArray;
-                if (authorArray != null)
+                if (jsonObject["author"] is JArray authorArray)
                 {
                     for (int i = 0; i < authorArray.Count; i++)
                     {
-                        if (authorArray[i].Type != JTokenType.String)
-                        {
-                            warnings.Add($"author 列表第 {i} 个元素不是字符串，已移除");
-                            authorArray[i].Remove();
-                            i--;
-                        }
+                        if (authorArray[i].Type == JTokenType.String) continue;
+                        warnings.Add(Locale("fungame_check.author_not_string", i));
+                        authorArray[i].Remove();
+                        i--;
                     }
                     
                     if (authorArray.Count == 0)
                     {
-                        warnings.Add("author 列表为空，已设置默认值");
-                        jsonObject["author"] = new JArray(new[] { "Unknown" });
+                        warnings.Add(Locale("fungame_check.author_empty"));
+                        jsonObject["author"] = new JArray(new object[] { "Unknown" });
                     }
                 }
             }
@@ -179,7 +148,7 @@ private static bool ValidateAndLoadFungame(string filePath)
 
             if (errors.Count > 0)
             {
-                Logger.LogWarning($"Fungame文件验证失败: {Path.GetFileName(filePath)}");
+                Logger.LogWarning($"fungame.json 文件验证失败: {Path.GetFileName(filePath)}");
                 foreach (var error in errors)
                 {
                     Logger.LogWarning($"  - {error}");
@@ -190,7 +159,7 @@ private static bool ValidateAndLoadFungame(string filePath)
 
             if (warnings.Count > 0)
             {
-                Logger.LogWarning($"Fungame文件存在问题，已使用默认值: {Path.GetFileName(filePath)}");
+                Logger.LogWarning($"fungame.json 文件验证通过，但存在默认值: {Path.GetFileName(filePath)}");
                 foreach (var warning in warnings)
                 {
                     Logger.LogWarning($"  - {warning}");
@@ -202,34 +171,45 @@ private static bool ValidateAndLoadFungame(string filePath)
 
             if (!IsValidVersion(fungame.Version))
             {
-                warnings.Add($"Version格式不正确: {fungame.Version}，已设置为 1.0");
+                warnings.Add(Locale("fungame_check.version_format_warning", fungame.Version));
                 fungame.Version = "1.0";
             }
 
-            if (fungame.Map != null)
+            var hasMap = fungame.Map != null;
+            if (hasMap)
             {
                 if (!ValidateMapDataInObject(fungame.Map))
                 {
-                    Logger.LogWarning($"Fungame文件的地图数据无效: {Path.GetFileName(filePath)}");
+                    Logger.LogWarning($"fungame.json 文件验证失败: {Path.GetFileName(filePath)}");
                     return false;
                 }
-                Logger.LogInfo($"成功加载Fungame: {fungame.Name} (ID: {fungame.Id}, Version: {fungame.Version}, 包含地图数据)");
+            }
+
+            Fungames.Add(fungame);
+
+            var name = fungame.Name;
+            var id = fungame.Id;
+            var version = fungame.Version;
+
+            if (hasMap)
+            {
+                Logger.LogInfo($"成功加载Fungame: {name} (ID: {id}, Version: {version}, 包含地图数据)");
             }
             else
             {
-                Logger.LogInfo($"成功加载Fungame: {fungame.Name} (ID: {fungame.Id}, Version: {fungame.Version})");
+                Logger.LogInfo($"成功加载Fungame: {name} (ID: {id}, Version: {version})");
             }
             
             if (warnings.Count > 0)
             {
-                Logger.LogInfo("提示: 建议修复上述警告以提高兼容性");
+                Logger.LogInfo("请检查并修复上述警告");
             }
             
             return true;
         }
         catch (Exception ex) when (ex is JsonException or UnauthorizedAccessException or IOException or ArgumentException)
         {
-            Logger.LogError($"Fungame文件处理失败: {Path.GetFileName(filePath)}, 详情: {ex.Message}");
+            Logger.LogError($"fungame.json 文件处理失败: {Path.GetFileName(filePath)} ({ex.Message})");
             return false;
         }
     }
@@ -240,52 +220,49 @@ private static bool IsValidVersion(string version)
             return false;
 
         var parts = version.Split('.');
-        if (parts.Length is < 2 or > 4)
-            return false;
+        return parts.Length is >= 2 and <= 4 && parts.All(part => int.TryParse(part, out _));
+}
 
-        return parts.All(part => int.TryParse(part, out _));
-    }
-
- private static void ValidateMapData(JObject mapObject, List<string> errors, List<string> warnings = null)
+ private static void ValidateMapData(JObject mapObject, List<string> errors, List<string> _ = null)
     {
         if (mapObject == null)
         {
-            errors.Add("map 字段格式不正确");
+            errors.Add(Locale("validation.map_invalid_type"));
             return;
         }
 
         if (!mapObject.ContainsKey("x"))
         {
-            errors.Add("地图缺少必需字段: x");
+            errors.Add(Locale("validation.map_missing_x"));
         }
         else if (mapObject["x"] == null || mapObject["x"].Type != JTokenType.Integer)
         {
-            errors.Add("地图 x 字段必须是整数");
+            errors.Add(Locale("validation.map_x_not_integer"));
         }
 
         if (!mapObject.ContainsKey("y"))
         {
-            errors.Add("地图缺少必需字段: y");
+            errors.Add(Locale("validation.map_missing_y"));
         }
         else if (mapObject["y"] == null || mapObject["y"].Type != JTokenType.Integer)
         {
-            errors.Add("地图 y 字段必须是整数");
+            errors.Add(Locale("validation.map_y_not_integer"));
         }
 
         if (!mapObject.ContainsKey("blocks"))
         {
-            errors.Add("地图缺少必需字段: blocks");
+            errors.Add(Locale("validation.map_missing_blocks"));
         }
         else if (mapObject["blocks"] == null || mapObject["blocks"].Type != JTokenType.Array)
         {
-            errors.Add("地图 blocks 字段必须是二维数组");
+            errors.Add(Locale("validation.map_blocks_not_array"));
         }
         else
         {
             var blocksArray = mapObject["blocks"] as JArray;
             if (blocksArray == null || blocksArray.Count == 0)
             {
-                errors.Add("地图 blocks 数组不能为空");
+                errors.Add(Locale("validation.map_blocks_empty"));
             }
             else
             {
@@ -293,7 +270,7 @@ private static bool IsValidVersion(string version)
                 {
                     if (blocksArray[i].Type != JTokenType.Array)
                     {
-                        errors.Add($"地图 blocks 第 {i} 行必须是数组");
+                        errors.Add(Locale("validation.map_block_row_not_array", i));
                         break;
                     }
                 }
@@ -305,7 +282,7 @@ private static bool IsValidVersion(string version)
 
         if (mapObject["items"].Type != JTokenType.Array)
         {
-            errors.Add("地图 items 字段必须是二维字符串数组");
+            errors.Add(Locale("validation.map_items_not_array"));
         }
         else
         {
@@ -317,7 +294,7 @@ private static bool IsValidVersion(string version)
             {
                 if (itemsArray[i].Type != JTokenType.Array)
                 {
-                    errors.Add($"地图 items 第 {i} 行必须是数组");
+                    errors.Add(Locale("validation.map_item_row_not_array", i));
                     break;
                 }
 
@@ -328,7 +305,7 @@ private static bool IsValidVersion(string version)
                 {
                     if (rowArray[j].Type != JTokenType.String)
                     {
-                        errors.Add($"地图 items[{i}][{j}] 必须是字符串");
+                        errors.Add(Locale("validation.map_item_not_string", i, j));
                         break;
                     }
                 }
@@ -340,13 +317,13 @@ private static bool IsValidVersion(string version)
     {
         if (featuresArray == null)
         {
-            errors.Add("features 字段必须是数组或对象");
+            errors.Add(Locale("validation.features_invalid_type"));
             return;
         }
 
         if (featuresArray.Count == 0)
         {
-            warnings?.Add("features 数组为空，将被忽略");
+            warnings?.Add(Locale("validation.features_empty"));
             return;
         }
 
@@ -357,7 +334,7 @@ private static bool IsValidVersion(string version)
                 featuresArray[i].Type != JTokenType.Float &&
                 featuresArray[i].Type != JTokenType.Integer)
             {
-                warnings?.Add($"features 第 {i} 个元素格式不正确，已跳过");
+                warnings?.Add(Locale("validation.features_element_invalid", i));
             }
         }
     }
@@ -366,13 +343,13 @@ private static bool IsValidVersion(string version)
     {
         if (spawnArray == null)
         {
-            errors.Add("spawn 字段必须是数组");
+            errors.Add(Locale("validation.spawn_must_be_array"));
             return;
         }
 
         if (spawnArray.Count != 2)
         {
-            warnings?.Add($"spawn 数组包含 {spawnArray.Count} 个元素而非2个，将被忽略");
+            warnings?.Add(Locale("validation.spawn_wrong_count", spawnArray.Count));
             return;
         }
 
@@ -380,7 +357,7 @@ private static bool IsValidVersion(string version)
         {
             if (spawnArray[i].Type != JTokenType.Float && spawnArray[i].Type != JTokenType.Integer)
             {
-                warnings?.Add($"spawn 第 {i} 个元素不是数字，将被忽略");
+                warnings?.Add(Locale("validation.spawn_element_not_number", i));
             }
         }
     }
@@ -389,11 +366,10 @@ private static bool IsValidVersion(string version)
     {
         if (mapData.Blocks == null || mapData.Blocks.Length == 0)
         {
-            Logger.LogWarning("地图中没有方块数据");
+            Logger.LogWarning(Locale("validation.no_data", Locale("common.map"), Locale("common.block")));
             return false;
         }
 
-        var rowCount = mapData.Blocks.Length;
         var maxColCount = 0;
         
         foreach (var row in mapData.Blocks)
@@ -405,79 +381,74 @@ private static bool IsValidVersion(string version)
         }
 
         if (maxColCount != 0) return true;
-        Logger.LogWarning("地图行数据为空");
+        Logger.LogWarning(Locale("validation.row_data_empty", Locale("common.map")));
         return false;
 
     }
     
-    private static void ValidateRequiredFieldWithDefault(JObject jsonObject, string fieldName, List<string> errors, List<string> warnings, string defaultValue)
+    private static void ValidateRequiredFieldWithDefault(JObject jsonObject, string fieldName, List<string> warnings, string defaultValue)
     {
         if (!jsonObject.ContainsKey(fieldName))
         {
-            warnings.Add($"缺少必需字段: {fieldName}，已使用默认值 \"{defaultValue}\"");
+            warnings.Add(Locale("validation.field_missing_default", fieldName, defaultValue));
             jsonObject[fieldName] = defaultValue;
         }
         else if (jsonObject[fieldName] == null || jsonObject[fieldName].Type == JTokenType.Null)
         {
-            warnings.Add($"字段为空: {fieldName}，已使用默认值 \"{defaultValue}\"");
+            warnings.Add(Locale("validation.field_null_default", fieldName, defaultValue));
             jsonObject[fieldName] = defaultValue;
         }
         else if (jsonObject[fieldName].Type == JTokenType.String &&
                  string.IsNullOrWhiteSpace(jsonObject[fieldName].ToString()))
         {
-            warnings.Add($"字段为空字符串: {fieldName}，已使用默认值 \"{defaultValue}\"");
+            warnings.Add(Locale("validation.field_empty_string_default", fieldName, defaultValue));
             jsonObject[fieldName] = defaultValue;
         }
     }
 
-    private static void ValidateRequiredListFieldWithDefault(JObject jsonObject, string fieldName, List<string> errors, List<string> warnings, string defaultItem)
+    private static void ValidateRequiredListFieldWithDefault(JObject jsonObject, string fieldName, List<string> warnings, string defaultItem)
     {
         if (!jsonObject.ContainsKey(fieldName))
         {
-            warnings.Add($"缺少必需字段: {fieldName}，已使用默认值 [\"{defaultItem}\"]");
-            jsonObject[fieldName] = new JArray(new[] { defaultItem });
+            warnings.Add(Locale("validation.field_must_be_array_default", fieldName, defaultItem));
+            jsonObject[fieldName] = new JArray(new object[] { defaultItem });
         }
         else if (jsonObject[fieldName] == null || jsonObject[fieldName].Type == JTokenType.Null)
         {
-            warnings.Add($"字段为空: {fieldName}，已使用默认值 [\"{defaultItem}\"]");
-            jsonObject[fieldName] = new JArray(new[] { defaultItem });
+            warnings.Add(Locale("validation.field_null_array_default", fieldName, defaultItem));
+            jsonObject[fieldName] = new JArray(new object[] { defaultItem });
         }
         else if (jsonObject[fieldName].Type != JTokenType.Array)
         {
-            warnings.Add($"{fieldName} 字段必须是数组，已转换为数组");
+            warnings.Add(Locale("validation.field_convert_to_array", fieldName));
             var currentValue = jsonObject[fieldName].ToString();
-            jsonObject[fieldName] = new JArray(new[] { currentValue });
+            jsonObject[fieldName] = new JArray(new object[] { currentValue });
         }
         else
         {
             var array = jsonObject[fieldName] as JArray;
             if (array == null || array.Count == 0)
             {
-                warnings.Add($"{fieldName} 数组为空，已设置默认值");
-                jsonObject[fieldName] = new JArray(new[] { defaultItem });
+                warnings.Add(Locale("validation.array_empty_default", fieldName));
+                jsonObject[fieldName] = new JArray(new object[] { defaultItem });
             }
         }
     }
 
     private static void ValidateOptionalListField(JObject jsonObject, string fieldName, List<string> warnings)
     {
-        if (jsonObject.ContainsKey(fieldName) && jsonObject[fieldName] != null)
+        if (!jsonObject.ContainsKey(fieldName) || jsonObject[fieldName] == null) return;
+        if (jsonObject[fieldName].Type != JTokenType.Array)
         {
-            if (jsonObject[fieldName].Type != JTokenType.Array)
-            {
-                warnings.Add($"{fieldName} 字段必须是数组，已转换为数组");
-                var currentValue = jsonObject[fieldName].ToString();
-                jsonObject[fieldName] = new JArray(new[] { currentValue });
-            }
-            else
-            {
-                var array = jsonObject[fieldName] as JArray;
-                if (array == null || array.Count == 0)
-                {
-                    warnings.Add($"{fieldName} 数组为空，已移除");
-                    jsonObject[fieldName].Remove();
-                }
-            }
+            warnings.Add(Locale("validation.field_convert_to_array", fieldName));
+            var currentValue = jsonObject[fieldName].ToString();
+            jsonObject[fieldName] = new JArray(new object[] { currentValue });
+        }
+        else
+        {
+            if (jsonObject[fieldName] is JArray array && array.Count != 0) return;
+            warnings.Add(Locale("validation.array_empty_removed", fieldName));
+            jsonObject[fieldName].Remove();
         }
     }
 
@@ -515,4 +486,26 @@ private static bool IsValidVersion(string version)
         return !string.IsNullOrWhiteSpace(id) && id.All(c => char.IsLower(c) || char.IsDigit(c) || c == '_');
     }
 
+    private static void Info(string key, params object[] args)
+    {
+        var message = ModLocale.GetFormat($"{LogPrefix}{key}", args);
+        Tools.LogInfo(message, Logger);
+    }
+
+    private static void Error(string key, params object[] args)
+    {
+        var message = ModLocale.GetFormat($"{LogPrefix}{key}", args);
+        Tools.LogError(message, Logger);
+    }
+
+    private static void Warning(string key, params object[] args)
+    {
+        var message = ModLocale.GetFormat($"{LogPrefix}{key}", args);
+        Tools.LogWarning(message, Logger);
+    }
+
+    private static string Locale(string key, params object[] args)
+    {
+        return ModLocale.GetFormat($"{LogPrefix}{key}", args);
+    }
 }

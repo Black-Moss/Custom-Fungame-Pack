@@ -1,3 +1,107 @@
 ﻿{
-  "log.test": "TEST!"
+  "feature": {
+    "fullbright": "Fullbright",
+    "forgiving_level": "Forgiving Level",
+    "gravity": "Gravity",
+    "error": {
+      "invalid_feature": "Invalid feature",
+      "invalid_value": "Invalid value"
+    }
+  },
+  "log": {
+    "world_generation": {
+      "scene_type_set": "Set scene type to: {0}",
+      "no_features_enabled": "No features enabled",
+      "feature_enabled": "{0} enabled",
+      "feature_enabled_with_value": "{0} enabled: {1}",
+      "unknown_feature": "Unknown feature: {0}",
+      "skip_generation": "Skipped {0} generation",
+      "initializing_world": "Initializing Fungame map...",
+      "loading_fungame_map": "Loading Fungame map: {0}",
+      "no_map_data": "Fungame {0} does not contain map data",
+      "no_commands": "No {0} enabled",
+      "executing_command": "Executing {0}: {1}"
+    },
+    "fungame_check": {
+      "folders_read": "Read {0} Fungame folders",
+      "directory_missing_files": "Fungame directory missing required files: {0}",
+      "missing_file": "  - Missing file: {0}",
+      "directories_loading": "{0}: {1}, loading...",
+      "validation_failed": "{0} validation failed!",
+      "validation_failed_count": "{0}: {1}:",
+      "directory_created": "Fungames directory does not exist, created: {0}",
+      "directory_create_failed": "Fungames directory creation failed (permission denied): {0}, details: {1}",
+      "validation_failed_file": "Fungame file validation failed: {0}",
+      "validation_with_defaults": "Fungame file has issues, using defaults: {0}",
+      "id_format_warning": "id field can only contain lowercase letters, numbers and underscores, auto-corrected",
+      "author_not_string": "Author list element {0} is not a string, removed",
+      "author_empty": "Author list is empty, set default value",
+      "version_format_warning": "Version format incorrect: {0}, set to 1.0",
+      "load_success_with_map": "Successfully loaded Fungame: {0} (ID: {1}, Version: {2}, includes map data)",
+      "load_success": "Successfully loaded Fungame: {0} (ID: {1}, Version: {2})",
+      "fix_warnings_hint": "Hint: It is recommended to fix the above warnings for better compatibility",
+      "processing_failed": "Fungame file processing failed: {0}, details: {1}"
+    },
+    "validation": {
+      "map_invalid_type": "map field format is incorrect",
+      "map_missing_x": "Map missing required field: x",
+      "map_x_not_integer": "Map x field must be an integer",
+      "map_missing_y": "Map missing required field: y",
+      "map_y_not_integer": "Map y field must be an integer",
+      "map_missing_blocks": "Map missing required field: blocks",
+      "map_blocks_not_array": "Map blocks field must be a 2D array",
+      "map_blocks_empty": "Map blocks array cannot be empty",
+      "map_block_row_not_array": "Map blocks row {0} must be an array",
+      "map_items_not_array": "Map items field must be a 2D string array",
+      "map_item_row_not_array": "Map items row {0} must be an array",
+      "map_item_not_string": "Map items[{0}][{1}] must be a string",
+      "features_invalid_type": "features field must be an array or object",
+      "features_empty": "features array is empty, will be ignored",
+      "features_element_invalid": "features element {0} format is incorrect, skipped",
+      "spawn_must_be_array": "spawn field must be an array",
+      "spawn_wrong_count": "spawn array contains {0} elements instead of 2, will be ignored",
+      "spawn_element_not_number": "spawn element {0} is not a number, will be ignored",
+      "no_data": "No {1} data in {0}",
+      "row_data_empty": "{0} row data is empty",
+      "field_missing_default": "Missing required field: {0}, using default value \"{1}\"",
+      "field_null_default": "Field is null: {0}, using default value \"{1}\"",
+      "field_empty_string_default": "Field is empty string: {0}, using default value \"{1}\"",
+      "field_must_be_array_default": "Missing required field: {0}, using default value [\"{1}\"]",
+      "field_null_array_default": "Field is null: {0}, using default value [\"{1}\"]",
+      "field_convert_to_array": "{0} field must be an array, converted to array",
+      "array_empty_default": "{0} array is empty, set default value",
+      "array_empty_removed": "{0} array is empty, removed"
+    },
+    "map_loader": {
+      "load_error": "Fungame or map data is null",
+      "load_success": "Successfully loaded map: start position({0}, {1}), size({2}x{3})",
+      "load_failed": "Failed to load map: {0}",
+      "irregular_shape": "Detected irregular {0} shape! Normalizing to rectangle ({1}x{2})...",
+      "row_empty_skip": "{0} row {1} is empty, skipping",
+      "invalid_block_type": "Invalid block type ({0}) at position ({1}, {2}), skipping",
+      "place_failed": "Failed to place {2} {3} at ({0}, {1}): {4}",
+      "apply_complete_fail": "{0} application complete, placed {1} {2}(s) successfully, {3} failed",
+      "apply_complete": "{0} application complete, placed {1} {2}(s)",
+      "normalized": "{0} normalized to {1}x{2} rectangle, missing parts filled with {3}"
+    },
+    "error": {
+      "no_fungame_file": "Cannot find fungame.json file: {0}",
+      "no_valid_directories": "No valid Fungame directories, please check the Fungames folder"
+    },
+    "common": {
+      "map": "Map",
+      "item": "Item",
+      "block": "Block",
+      "air_block": "air blocks",
+      "empty_string": "empty strings",
+      "valid_directory": "Valid directories",
+      "invalid_directory": "Invalid directories",
+      "directory_validation_failed": "Directory validation failed",
+      "terrain": "Terrain",
+      "structure": "Structure",
+      "background": "Background",
+      "startup_command": "Startup commands",
+      "forgiving_level_mode": "Forgiving level mode"
+    }
+  }
 }

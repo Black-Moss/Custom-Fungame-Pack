@@ -152,6 +152,16 @@ private static bool ValidateAndLoadFungame(string filePath)
             {
                 ValidateMapData(jsonObject["map"] as JObject, errors);
             }
+            
+            if (jsonObject.ContainsKey("features") && jsonObject["features"] != null)
+            {
+                ValidateFeatures(jsonObject["features"] as JArray, errors);
+            }
+            
+            if (jsonObject.ContainsKey("spawn") && jsonObject["spawn"] != null)
+            {
+                ValidateSpawn(jsonObject["spawn"] as JArray, errors);
+            }
 
             if (errors.Count > 0)
             {
@@ -249,16 +259,14 @@ private static bool IsValidVersion(string version)
             {
                 for (int i = 0; i < blocksArray.Count; i++)
                 {
-                    if (blocksArray[i].Type != JTokenType.Array)
-                    {
-                        errors.Add($"地图 blocks 第 {i} 行必须是数组");
-                        break;
-                    }
+                    if (blocksArray[i].Type == JTokenType.Array) continue;
+                    errors.Add($"地图 blocks 第 {i} 行必须是数组");
+                    break;
                 }
             }
         }
 
-        if (mapObject.ContainsKey("items") && mapObject["items"] != null)
+        if (!mapObject.ContainsKey("items") || mapObject["items"] == null) return;
         {
             if (mapObject["items"].Type != JTokenType.Array)
             {
@@ -267,32 +275,70 @@ private static bool IsValidVersion(string version)
             else
             {
                 var itemsArray = mapObject["items"] as JArray;
-                if (itemsArray != null && itemsArray.Count > 0)
+                if (itemsArray == null || itemsArray.Count <= 0) return;
+                for (int i = 0; i < itemsArray.Count; i++)
                 {
-                    for (int i = 0; i < itemsArray.Count; i++)
+                    if (itemsArray[i].Type != JTokenType.Array)
                     {
-                        if (itemsArray[i].Type != JTokenType.Array)
-                        {
-                            errors.Add($"地图 items 第 {i} 行必须是数组");
-                            break;
-                        }
-                        else
-                        {
-                            var rowArray = itemsArray[i] as JArray;
-                            if (rowArray != null)
-                            {
-                                for (int j = 0; j < rowArray.Count; j++)
-                                {
-                                    if (rowArray[j].Type != JTokenType.String)
-                                    {
-                                        errors.Add($"地图 items[{i}][{j}] 必须是字符串");
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                        errors.Add($"地图 items 第 {i} 行必须是数组");
+                        break;
+                    }
+
+                    var rowArray = itemsArray[i] as JArray;
+                    if (rowArray == null) continue;
+                    for (int j = 0; j < rowArray.Count; j++)
+                    {
+                        if (rowArray[j].Type == JTokenType.String) continue;
+                        errors.Add($"地图 items[{i}][{j}] 必须是字符串");
+                        break;
                     }
                 }
+            }
+        }
+    }
+
+    private static void ValidateFeatures(JArray featuresArray, List<string> errors)
+    {
+        if (featuresArray == null)
+        {
+            errors.Add("features 字段必须是数组");
+            return;
+        }
+
+        if (featuresArray.Count == 0)
+        {
+            errors.Add("features 数组不能为空");
+            return;
+        }
+
+        for (int i = 0; i < featuresArray.Count; i++)
+        {
+            if (featuresArray[i].Type != JTokenType.String)
+            {
+                errors.Add($"features 第 {i} 个元素必须是字符串");
+            }
+        }
+    }
+
+    private static void ValidateSpawn(JArray spawnArray, List<string> errors)
+    {
+        if (spawnArray == null)
+        {
+            errors.Add("spawn 字段必须是数组");
+            return;
+        }
+
+        if (spawnArray.Count != 2)
+        {
+            errors.Add("spawn 数组必须包含2个元素 [x, y]");
+            return;
+        }
+
+        for (int i = 0; i < spawnArray.Count; i++)
+        {
+            if (spawnArray[i].Type != JTokenType.Float && spawnArray[i].Type != JTokenType.Integer)
+            {
+                errors.Add($"spawn 第 {i} 个元素必须是数字");
             }
         }
     }
@@ -341,9 +387,6 @@ private static bool IsValidVersion(string version)
 
     private static bool IsValidId(string id)
     {
-        if (string.IsNullOrWhiteSpace(id))
-            return false;
-
-        return id.All(c => char.IsLower(c) || char.IsDigit(c) || c == '_');
+        return !string.IsNullOrWhiteSpace(id) && id.All(c => char.IsLower(c) || char.IsDigit(c) || c == '_');
     }
 }

@@ -20,7 +20,7 @@ $GamePath = [System.IO.Path]::GetFullPath($GamePath) # 游戏路径
 $bepInExPath = [System.IO.Path]::Combine($GamePath, "BepInEx")
 
 # 各种文件
-$bepInExLog = [System.IO.Path]::Combine($bepInExPath, "LogOutput.log") # BepInEx 日志
+$GameLog = Join-Path $env:USERPROFILE "AppData\LocalLow\Orsoniks\CasualtiesUnknown\Player.log" # 游戏日志
 $GameExecutable = [System.IO.Path]::Combine($GamePath, "CasualtiesUnknown.exe") # 游戏文件
 $ModDll = [System.IO.Path]::Combine($PSScriptRoot, "bin/Debug/net48", "$ModNamespace.dll")
 
@@ -60,9 +60,9 @@ function Write-ColoredMessage {
 
 # 定义日志复制函数
 function Copy-BepInExLog {
-    if (Test-Path $bepInExLog) {
+    if (Test-Path $GameLog) {
         try {
-            Copy-Item $bepInExLog $logDestination -Force
+            Copy-Item $GameLog $logDestination -Force
             Write-ColoredMessage "Copying BepInEx logs to ""$logDestination""." Cyan
         }
         catch {
@@ -77,9 +77,9 @@ function Interval {
 }
 
 # 清空 BepInEx 日志文件
-if (Test-Path $bepInExLog) {
-    Clear-Content $bepInExLog
-    Write-ColoredMessage "Cleared previous BepInEx logs." Cyan
+if (Test-Path $GameLog) {
+    Clear-Content $GameLog
+    Write-ColoredMessage "Cleared previous Game logs." Cyan
 }
 
 # 输出启动信息
@@ -178,8 +178,8 @@ try {
     # 定期轮询日志
     $lastReadPosition = 0
     while (!$gameProcess.HasExited) {
-        if (Test-Path $bepInExLog) {
-            $content = Get-Content $bepInExLog -ReadCount 0 -Encoding UTF8
+        if (Test-Path $GameLog) {
+            $content = Get-Content $GameLog -ReadCount 0 -Encoding UTF8
             for ($i = $lastReadPosition; $i -lt $content.Count; $i++) {
                 Write-ColoredMessage $content[$i] Magenta
             }

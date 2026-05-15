@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
+using UnityEngine;
 
 namespace CustomFungamePack;
 
@@ -9,10 +11,12 @@ public class Fungame
     public string Version { get; set; }
     public List<string> Author { get; set; }
     public string Description { get; set; }
-    public List<string> Feature { get; set; }
+    public List<Feature> Features { get; set; }
+    public Vector2 Spawn { get; set; } = new(0, 0);
     public MapData Map { get; set; }
 }
 
+[UsedImplicitly]
 public class MapData
 {
     public int X { get; set; }

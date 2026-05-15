@@ -16,28 +16,38 @@ public class WorldGenerationPatch
     public static void ForceEnableTutorial(WorldGeneration __instance)
     {
         WorldGeneration = __instance;
-        __instance.biomeOverride = WorldGeneration.OverrideSceneType.Tutorial;
-        Info("已强制修改为教程世界");
+        __instance.biomeOverride = WorldGeneration.OverrideSceneType.Debug;
+    }
+    
+    // 跳过地形生成
+    [HarmonyPatch("WorldGenerateTerrain")]
+    [HarmonyPrefix]
+    public static bool SkipTerrainGeneration()
+    {
+        return false;
     }
 
+    // // 跳过结构生成
+    // [HarmonyPatch("WorldGenerateStructures")]
+    // [HarmonyPrefix]
+    // public static bool SkipStructureGeneration()
+    // {
+    //     return false;
+    // }
+    
+    // // 跳过背景生成
+    // [HarmonyPatch("WorldCreateBackground")]
+    // [HarmonyPrefix]
+    // public static bool SkipWorldCreateBackground()
+    // {
+    //     return false;
+    // }
+    
     [HarmonyPatch("FinishWorldGeneration")]
     [HarmonyPostfix]
     public static void InitializationWorld(WorldGeneration __instance)
     {
         __instance.loadingText.text = "初始化Fungame地图...";
-
-        const int startX = -76;
-        const int endX = 74;
-        const int startY = -120;
-        const int endY = 58;
-            
-        for (int x = startX; x < endX; x++)
-        {
-            for (int y = startY; y < endY; y++)
-            {
-                Tools.SetBlock(x, y, 0);
-            }
-        }
 
         if (FungameCheck.ValidDirectories.Count > 0)
         {
@@ -55,8 +65,12 @@ public class WorldGenerationPatch
                     __instance.loadingText.text = $"正在加载Fungame地图: {fungame.Name}";
                     MapLoader.LoadAndApplyMapFromFungame(fungame);
                     
-                    Tools.LogCla($"{fungame.Name} v{fungame.Version} by {fungame.Author}", Logger, true);
-                    Tools.LogCla($"{fungame.Description}", Logger);
+                    string authors = fungame.Author != null && fungame.Author.Count > 0 
+                        ? string.Join(", ", fungame.Author) 
+                        : "未知作者";
+                    Tools.LogCla($"{fungame.Name} v{fungame.Version}\nby {authors}", Logger, true);
+                    Tools.LogCla($"{fungame.Description}", Logger, false, 6f);
+                    Tools.SetBlock(0, 0, 6);
                 }
                 else
                 {

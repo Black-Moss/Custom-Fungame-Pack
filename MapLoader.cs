@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using BepInEx.Logging;
 using MossLib;
 
@@ -20,7 +19,7 @@ public static class MapLoader
             }
 
             var mapData = fungame.Map;
-            ValidateAndApplyMap(mapData);
+            ValidateAndApplyMap(fungame);
             
             var width = mapData.Blocks.Length;
             var height = mapData.Blocks.Length > 0 ? mapData.Blocks[0].Length : 0;
@@ -32,8 +31,9 @@ public static class MapLoader
         }
     }
     
-    private static void ValidateAndApplyMap(MapData mapData)
+    private static void ValidateAndApplyMap(Fungame fungame)
     {
+        var mapData = fungame.Map;
         if (mapData.Blocks == null || mapData.Blocks.Length == 0)
         {
             Logger.LogWarning("地图中没有方块数据");
@@ -125,6 +125,7 @@ public static class MapLoader
         }
 
         ApplyItemsFromMap(mapData);
+        Tools.Tp(fungame.Spawn);
     }
 
 private static void ApplyItemsFromMap(MapData mapData)

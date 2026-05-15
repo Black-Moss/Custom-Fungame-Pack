@@ -184,11 +184,15 @@ public static class WorldGenerationPatch
                     ExecuteCommands(fungame);
                     Tools.Tp(fungame.SpawnPosition);
 
-                    string authors = fungame.Author is { Count: > 0 }
-                        ? string.Join(", ", fungame.Author)
-                        : "Unknown";
-                    Tools.LogCla($"{fungame.Name} v{fungame.Version}\nby {authors}", Logger, true);
-                    Tools.LogCla($"{fungame.Description}", Logger, false, 6f);
+                    string modInfo = $"{fungame.Name} v{fungame.Version}";
+                    string authorInfo = $"by {fungame.Authors}";
+                    string description = fungame.Description;
+                    
+                    Tools.Alert($"{modInfo}\n{authorInfo}", true);
+                    Tools.Alert(description, false, 6f);
+                    Tools.LogInfo(modInfo, Logger);
+                    Tools.LogInfo(authorInfo, Logger);
+                    Tools.LogInfo(description, Logger);
                 }
                 else
                 {

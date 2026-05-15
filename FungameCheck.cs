@@ -28,8 +28,7 @@ public static class FungameCheck
     {
         var directories = Directory.GetDirectories(FungamesPath);
 
-        // 早期初始化，直接使用 Logger，不依赖本地化
-        _logger.LogInfo($"已读取 {directories.Length} 个Fungame文件夹");
+        _logger.LogInfo($"Read {directories.Length} Fungame folders");
 
         ValidDirectories.Clear();
         CheckFailDirectories.Clear();
@@ -46,35 +45,30 @@ public static class FungameCheck
 
             if (missingFiles.Count > 0)
             {
-                _logger.LogWarning($"{Path.GetFileName(fungamesDirectory)} 缺少文件: {string.Join(", ", missingFiles)}");
+                _logger.LogWarning($"{Path.GetFileName(fungamesDirectory)} Missing files: {string.Join(", ", missingFiles)}");
                 continue;
             }
 
             ValidDirectories.Add(fungamesDirectory);
         }
 
-        if (ValidDirectories.Count != 0)
+        if (ValidDirectories.Count == 0) return;
+        _logger.LogInfo($"Valid directories: {ValidDirectories.Count}, loading...");
+
+        var directoriesToValidate = ValidDirectories.ToList();
+        foreach (var fungame in directoriesToValidate.Where(fungame => !ValidateAndLoadFungame(Path.Combine(fungame, "fungame.json"))))
         {
-            _logger.LogInfo($"有效目录: {ValidDirectories.Count} 个，正在加载中...");
+            _logger.LogWarning($"{Path.GetFileName(fungame)} Validation failed!");
+            CheckFailDirectories.Add(fungame);
+        }
 
-            var directoriesToValidate = ValidDirectories.ToList();
-            foreach (var fungame in directoriesToValidate)
+        if (CheckFailDirectories.Count != 0)
+        {
+            _logger.LogInfo($"Directory validation failed: {CheckFailDirectories.Count}:");
+            foreach (var failDirectory in CheckFailDirectories)
             {
-                if (!ValidateAndLoadFungame(Path.Combine(fungame, "fungame.json")))
-                {
-                    _logger.LogWarning($"{Path.GetFileName(fungame)} 识别失败!");
-                    CheckFailDirectories.Add(fungame);
-                }
-            }
-
-            if (CheckFailDirectories.Count != 0)
-            {
-                _logger.LogInfo($"目录识别失败: {CheckFailDirectories.Count} 个：");
-                foreach (var failDirectory in CheckFailDirectories)
-                {
-                    _logger.LogInfo($"- {Path.GetFileName(failDirectory)}");
-                    ValidDirectories.Remove(failDirectory);
-                }
+                _logger.LogInfo($"- {Path.GetFileName(failDirectory)}");
+                ValidDirectories.Remove(failDirectory);
             }
         }
     }
@@ -85,7 +79,7 @@ public static class FungameCheck
         {
             if (!File.Exists(filePath))
             {
-                _logger.LogError($"找不到 fungame.json 文件: {filePath}");
+                _logger.LogError($"Cannot find fungame.json file: {filePath}");
                 return false;
             }
 
@@ -148,7 +142,7 @@ public static class FungameCheck
 
             if (errors.Count > 0)
             {
-                _logger.LogWarning($"fungame.json 文件验证失败: {Path.GetFileName(filePath)}");
+                _logger.LogWarning($"fungame.json validation failed: {Path.GetFileName(filePath)}");
                 foreach (var error in errors)
                 {
                     _logger.LogWarning($"  - {error}");
@@ -159,7 +153,7 @@ public static class FungameCheck
 
             if (warnings.Count > 0)
             {
-                _logger.LogWarning($"fungame.json 文件验证通过，但存在默认值: {Path.GetFileName(filePath)}");
+                _logger.LogWarning($"fungame.json validation passed with defaults: {Path.GetFileName(filePath)}");
                 foreach (var warning in warnings)
                 {
                     _logger.LogWarning($"  - {warning}");
@@ -180,7 +174,7 @@ public static class FungameCheck
             {
                 if (!ValidateMapDataInObject(fungame.MapData))
                 {
-                    _logger.LogWarning($"fungame.json 文件验证失败: {Path.GetFileName(filePath)}");
+                    _logger.LogWarning($"fungame.json validation failed: {Path.GetFileName(filePath)}");
                     return false;
                 }
             }
@@ -192,12 +186,12 @@ public static class FungameCheck
             var version = fungame.Version;
 
             _logger.LogInfo(hasMap
-                ? $"成功加载Fungame: {name} (ID: {id}, Version: {version}, 包含地图数据)"
-                : $"成功加载Fungame: {name} (ID: {id}, Version: {version})");
+                ? $"Successfully loaded Fungame: {name} (ID: {id}, Version: {version}, includes map data)"
+                : $"Successfully loaded Fungame: {name} (ID: {id}, Version: {version})");
 
             if (warnings.Count > 0)
             {
-                _logger.LogInfo("请检查并修复上述警告");
+                _logger.LogInfo("Please check and fix the above warnings");
             }
 
             return true;
@@ -205,7 +199,7 @@ public static class FungameCheck
         catch (Exception ex) when (ex is JsonException or UnauthorizedAccessException or IOException
                                        or ArgumentException)
         {
-            _logger.LogError($"fungame.json 文件处理失败: {Path.GetFileName(filePath)} ({ex.Message})");
+            _logger.LogError($"fungame.json processing failed: {Path.GetFileName(filePath)} ({ex.Message})");
             return false;
         }
     }
@@ -229,29 +223,29 @@ public static class FungameCheck
 
         if (!mapObject.ContainsKey("x"))
         {
-            errors.Add(Locale("validation.map_missing_x"));
+            errors.Add(Locale("validation.map_missing_field", "x"));
         }
         else if (mapObject["x"] == null || mapObject["x"].Type != JTokenType.Integer)
         {
-            errors.Add(Locale("validation.map_x_not_integer"));
+            errors.Add(Locale("validation.map_field_type_error", "x", "整数"));
         }
 
         if (!mapObject.ContainsKey("y"))
         {
-            errors.Add(Locale("validation.map_missing_y"));
+            errors.Add(Locale("validation.map_missing_field", "y"));
         }
         else if (mapObject["y"] == null || mapObject["y"].Type != JTokenType.Integer)
         {
-            errors.Add(Locale("validation.map_y_not_integer"));
+            errors.Add(Locale("validation.map_field_type_error", "y", "整数"));
         }
 
         if (!mapObject.ContainsKey("map"))
         {
-            errors.Add(Locale("validation.map_missing_map"));
+            errors.Add(Locale("validation.map_missing_field", "map"));
         }
         else if (mapObject["map"] == null || mapObject["map"].Type != JTokenType.Array)
         {
-            errors.Add(Locale("validation.map_map_not_array"));
+            errors.Add(Locale("validation.map_field_type_error", "map", "字符串数组"));
         }
         else
         {
@@ -272,11 +266,11 @@ public static class FungameCheck
 
         if (!mapObject.ContainsKey("key"))
         {
-            errors.Add(Locale("validation.map_missing_key"));
+            errors.Add(Locale("validation.map_missing_field", "key"));
         }
         else if (mapObject["key"] == null || mapObject["key"].Type != JTokenType.Object)
         {
-            errors.Add(Locale("validation.map_key_not_object"));
+            errors.Add(Locale("validation.map_field_type_error", "key", "对象"));
         }
 
         if (!mapObject.ContainsKey("items") || mapObject["items"] == null)
@@ -284,7 +278,7 @@ public static class FungameCheck
 
         if (mapObject["items"].Type != JTokenType.Array)
         {
-            errors.Add(Locale("validation.map_items_not_array"));
+            errors.Add(Locale("validation.map_field_type_error", "items", "数组"));
         }
         else
         {
@@ -371,7 +365,7 @@ public static class FungameCheck
 
         if (mapData.Key == null || mapData.Key.Count == 0)
         {
-            _logger.LogWarning(Locale("validation.map_missing_key"));
+            _logger.LogWarning(Locale("validation.map_missing_field", "key"));
             return false;
         }
 

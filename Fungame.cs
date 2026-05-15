@@ -19,6 +19,7 @@ public class Fungame
     public MapData MapData { get; set; }
     
     public Vector2 SpawnPosition => new(Spawn is { Length: >= 2 } ? Spawn[0] : 0, Spawn != null && Spawn.Length >= 2 ? Spawn[1] : 0);
+    public string Authors => Author is { Count: > 0 } ? string.Join(", ", Author) : "Unknown";
 }
 
 [UsedImplicitly]

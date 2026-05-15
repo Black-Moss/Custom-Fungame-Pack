@@ -26,7 +26,7 @@ public class ModLocale : ModLocaleBase
         try
         {
             var result = _instance.GetStringFormatted(key, args);
-            return result ?? $"[{key}]";
+            return string.IsNullOrEmpty(result) ? $"[{key}]" : result;
         }
         catch
         {

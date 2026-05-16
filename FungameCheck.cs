@@ -12,7 +12,7 @@ namespace CustomFungamePack;
 public static class FungameCheck
 {
     private static ManualLogSource _logger;
-    private const string LogPrefix = "log.fungame_check.";
+    private const string LocaleKeyPre = "log.fungame_check.";
     private static readonly string FungamesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fungames");
     public static readonly List<string> ValidDirectories = [];
     public static readonly List<string> CheckFailDirectories = [];
@@ -480,6 +480,6 @@ public static class FungameCheck
 
     private static string Locale(string key, params object[] args)
     {
-        return ModLocale.GetFormat($"{LogPrefix}{key}", args);
+        return ModLocale.GetFormat($"{LocaleKeyPre}{key}", args);
     }
 }

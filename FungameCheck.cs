@@ -136,11 +136,6 @@ public static class FungameCheck
                 ValidateFeatures(jsonObject["features"] as JArray, errors, warnings);
             }
 
-            if (jsonObject.ContainsKey("spawn") && jsonObject["spawn"] != null)
-            {
-                ValidateSpawn(jsonObject["spawn"] as JArray, errors, warnings);
-            }
-
             if (errors.Count > 0)
             {
                 Warning($"fungame.json validation failed: {Path.GetFileName(filePath)}");
@@ -222,24 +217,6 @@ private static void ValidateMapData(JObject mapObject, List<string> errors)
             return;
         }
 
-        if (!mapObject.ContainsKey("x"))
-        {
-            errors.Add(Validation("map_missing_field", "x"));
-        }
-        else if (mapObject["x"] == null || mapObject["x"].Type != JTokenType.Integer)
-        {
-            errors.Add(Validation("map_field_type_error", "x", "整数"));
-        }
-
-        if (!mapObject.ContainsKey("y"))
-        {
-            errors.Add(Validation("map_missing_field", "y"));
-        }
-        else if (mapObject["y"] == null || mapObject["y"].Type != JTokenType.Integer)
-        {
-            errors.Add(Validation("map_field_type_error", "y", "整数"));
-        }
-
         if (!mapObject.ContainsKey("map"))
         {
             errors.Add(Validation("map_missing_field", "map"));
@@ -310,17 +287,6 @@ private static void ValidateMapData(JObject mapObject, List<string> errors)
         }
     }
 
-    private static void SetDefaultIntegerField(JObject jsonObject, string fieldName, int defaultValue)
-    {
-        if (!jsonObject.ContainsKey(fieldName)
-            || jsonObject[fieldName] == null
-            || jsonObject[fieldName].Type == JTokenType.Null
-            || jsonObject[fieldName].Type != JTokenType.Integer)
-        {
-            jsonObject[fieldName] = defaultValue;
-        }
-    }
-    
     private static void ValidateFeatures(JArray featuresArray, List<string> errors, List<string> warnings = null)
     {
         if (featuresArray == null)
@@ -343,29 +309,6 @@ private static void ValidateMapData(JObject mapObject, List<string> errors)
                 featuresArray[i].Type != JTokenType.Integer)
             {
                 warnings?.Add(Validation("features_element_invalid", i));
-            }
-        }
-    }
-
-    private static void ValidateSpawn(JArray spawnArray, List<string> errors, List<string> warnings = null)
-    {
-        if (spawnArray == null)
-        {
-            errors.Add(Validation("spawn_must_be_array"));
-            return;
-        }
-
-        if (spawnArray.Count != 2)
-        {
-            warnings?.Add(Validation("spawn_wrong_count", spawnArray.Count));
-            return;
-        }
-
-        for (int i = 0; i < spawnArray.Count; i++)
-        {
-            if (spawnArray[i].Type != JTokenType.Float && spawnArray[i].Type != JTokenType.Integer)
-            {
-                warnings?.Add(Validation("spawn_element_not_number", i));
             }
         }
     }

@@ -8,17 +8,28 @@
     "fungame": {
       "description": "Fungame 的相关指令",
       "string": "Select function",
+      "parameter": "Function parameter",
       "reload": "Reloading map...",
       "info": {
         "name": "Name: {0}",
         "id": "ID: {0}",
         "version": "Version: {0}",
         "authors": "Authors: {0}",
-        "description": "Description",
+        "description": "Description: {0}",
         "feature": "Features: {0}",
         "spawn": "Spawn point: {0}"
       },
-      "spawn": "Teleporting back to the spawn point {0} now..."
+      "spawn": "Teleporting back to the spawn point {0} now...",
+      "list": {
+        "header": "Loaded {0} Fungame(s):",
+        "item": "{0}[{1}] {2} (ID: {3}, Version: {4}, Authors: {5})",
+        "empty": "No Fungames available"
+      },
+      "select": {
+        "no_key": "Please provide a Fungame ID or name to select",
+        "not_found": "Fungame not found: {0}",
+        "success": "Selected {0} (ID: {1})"
+      }
     }
   },
   "log": {

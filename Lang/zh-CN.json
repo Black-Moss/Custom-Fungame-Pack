@@ -8,6 +8,7 @@
     "fungame": {
       "description": "Fungame 的相关指令",
       "string": "选择功能",
+      "parameter": "功能参数",
       "reload": "正在重新加载地图...",
       "info": {
         "name": "名称: {0}",
@@ -18,7 +19,17 @@
         "feature": "特性: {0}",
         "spawn": "出生点: {0}"
       },
-      "spawn": "传送回出生{0}中..."
+      "spawn": "传送回出生{0}中...",
+      "list": {
+        "header": "已加载 {0} 个 Fungame:",
+        "item": "{0}[{1}] {2} (ID: {3}, 版本: {4}, 作者: {5})",
+        "empty": "没有可用的 Fungame"
+      },
+      "select": {
+        "no_key": "请提供要选择的 Fungame ID 或名称",
+        "not_found": "未找到 Fungame: {0}",
+        "success": "已选择 {0} (ID: {1})"
+      }
     }
   },
   "log": {

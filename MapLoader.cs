@@ -209,15 +209,13 @@ public static class MapLoader
         }
     }
     
-    public static void ReloadMap()
+    public static void ReloadMap(Fungame fungame)
     {
         World.CheckForWorld();
         Log.Divider();
         try
         {
-            var currentFungame = WorldGenerationPatch.CurrentFungame;
-
-            if (currentFungame == null)
+            if (fungame == null)
             {
                 Error("no_current_fungame");
                 return;
@@ -231,7 +229,7 @@ public static class MapLoader
             Error("reload_failed", ex.Message);
         }
     }
-
+    
     private static void RestartScene()
     {
         try

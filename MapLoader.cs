@@ -4,6 +4,7 @@ using System.Linq;
 using BepInEx.Logging;
 using MossLib.Tool;
 using Newtonsoft.Json.Linq;
+using UnityEngine.SceneManagement;
 
 namespace CustomFungamePack;
 
@@ -206,6 +207,50 @@ public static class MapLoader
             Error("place_failed", x, y, ModLocale.GetFormat("log.common.item"), itemId, ex.Message);
             failCount++;
         }
+    }
+    
+    public static void ReloadMap()
+    {
+        World.CheckForWorld();
+        
+        try
+        {
+            var currentFungame = WorldGenerationPatch.CurrentFungame;
+
+            if (currentFungame == null)
+            {
+                Error("no_current_fungame");
+                return;
+            }
+
+            Info("restarting_scene");
+            RestartScene();
+        }
+        catch (Exception ex)
+        {
+            Error("reload_failed", ex.Message);
+        }
+    }
+
+    private static void RestartScene()
+    {
+        try
+        {
+            var currentScene = SceneManager.GetActiveScene();
+            Info("scene_reloading", currentScene.name);
+
+            SceneManager.LoadScene(currentScene.buildIndex);
+
+            Info("scene_reloaded");
+        }
+        catch (Exception ex)
+        {
+            Error("scene_reload_failed", ex.Message);
+        }
+    }
+    
+    public static void GetMapInfo()
+    { 
     }
 
     private static void Info(string key, params object[] args)

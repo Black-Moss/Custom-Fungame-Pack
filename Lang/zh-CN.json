@@ -8,8 +8,17 @@
     "fungame": {
       "description": "Fungame 的相关指令",
       "string": "选择功能",
-      "reload": "重载地图",
-      "reloaded": "正在重新加载地图..."
+      "reload": "正在重新加载地图...",
+      "info": {
+        "name": "名称: {0}",
+        "id": "ID: {0}",
+        "version": "版本: {0}",
+        "authors": "作者: {0}",
+        "description": "描述: {0}",
+        "feature": "特性: {0}",
+        "spawn": "出生点: {0}"
+      },
+      "spawn": "传送回出生点中..."
     }
   },
   "log": {
@@ -62,7 +71,13 @@
       "load_success": "成功加载地图: 起始坐标({0}, {1}), 尺寸({2}x{3})",
       "load_failed": "加载地图失败: {0}",
       "place_failed": "在 ({0}, {1}) 放置{2} {3} 失败: {4}",
-      "multiple_blocks_in_list": "在 ({0}, {1}) 检测到列表中有多个物块，只生成第一个"
+      "multiple_blocks_in_list": "在 ({0}, {1}) 检测到列表中有多个物块，只生成第一个",
+      "reload_success": "成功重新加载地图: {0}",
+      "reload_failed": "重新加载地图失败: {0}",
+      "restarting_scene": "正在重启场景...",
+      "scene_reloading": "正在重新加载场景: {0}",
+      "scene_reloaded": "场景已重新加载",
+      "scene_reload_failed": "重新加载场景失败: {0}"
     },
     "error": {
       "no_fungame_file": "找不到 fungame.json 文件: {0}",
@@ -80,13 +95,7 @@
     },
     "modcommand": {
       "empty_type": "未知的指令类型",
-      "no_current_fungame": "当前没有加载的 Fungame 配置",
-      "reload_success": "成功重新加载地图: {0}",
-      "reload_failed": "重新加载地图失败: {0}",
-      "restarting_scene": "正在重启场景...",
-      "scene_reloading": "正在重新加载场景: {0}",
-      "scene_reloaded": "场景已重新加载",
-      "scene_reload_failed": "重新加载场景失败: {0}"
+      "no_current_fungame": "当前没有加载的 Fungame 配置"
     }
   }
 }

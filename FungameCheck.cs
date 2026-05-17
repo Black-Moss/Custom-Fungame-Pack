@@ -18,11 +18,22 @@ public static class FungameCheck
     public static readonly List<string> ValidDirectories = [];
     public static readonly List<string> CheckFailDirectories = [];
     public static readonly List<Fungame> Fungames = [];
-
+    public static Fungame RunningFungame => WorldGenerationPatch.CurrentFungame;
+    
     public static void Initialize()
     {
         _logger = Plugin.Logger;
         LoadFungameDirectories();
+    }
+    
+    public static Fungame GetRunningFungame()
+    {
+        return WorldGenerationPatch.CurrentFungame;
+    }
+
+    public static bool IsFungameRunning()
+    {
+        return WorldGenerationPatch.CurrentFungame != null;
     }
 
     private static void LoadFungameDirectories()

@@ -8,8 +8,17 @@
     "fungame": {
       "description": "Fungame 的相关指令",
       "string": "Select function",
-      "reload": "Reload map",
-      "reloaded": "Reloading map..."
+      "reload": "Reloading map...",
+      "info": {
+        "name": "Name: {0}",
+        "id": "ID: {0}",
+        "version": "Version: {0}",
+        "authors": "Authors: {0}",
+        "description": "Description",
+        "feature": "Features: {0}",
+        "spawn": "Spawn point: {0}"
+      },
+      "spawn": "Teleporting back to the spawn point now..."
     }
   },
   "log": {
@@ -62,7 +71,13 @@
       "load_success": "Successfully loaded map: start position({0}, {1}), size({2}x{3})",
       "load_failed": "Failed to load map: {0}",
       "place_failed": "Failed to place {2} {3} at ({0}, {1}): {4}",
-      "multiple_blocks_in_list": "Multiple blocks detected in list at ({0}, {1}), only the first one will be generated"
+      "multiple_blocks_in_list": "Multiple blocks detected in list at ({0}, {1}), only the first one will be generated",
+      "reload_success": "Successfully reloaded map: {0}",
+      "reload_failed": "Failed to reload map: {0}",
+      "restarting_scene": "Restarting scene...",
+      "scene_reloading": "Reloading scene: {0}",
+      "scene_reloaded": "Scene reloaded",
+      "scene_reload_failed": "Failed to reload scene: {0}"
     },
     "error": {
       "no_fungame_file": "Cannot find fungame.json file: {0}",
@@ -80,12 +95,7 @@
     },
     "modcommand": {
       "empty_type": "Unknown command type",
-      "no_current_fungame": "No current Fungame configuration loaded",
-      "reload_success": "Successfully reloaded map: {0}",
-      "reload_failed": "Failed to reload map: {0}",
-      "restarting_scene": "Restarting scene...",
-      "scene_reloading": "Reloading scene: {0}",
-      "scene_reloaded": "Scene reloaded",
-      "scene_reload_failed": "Failed to reload scene: {0}"
-    }  }
+      "no_current_fungame": "No current Fungame configuration loaded"
+    }
+  }
 }

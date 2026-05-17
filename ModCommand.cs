@@ -18,14 +18,29 @@ public class ModCommand : ModCommandBase
     [HarmonyPostfix]
     public static void RegisterCustomCommands(ConsoleScript __instance)
     {
+        var fungame = FungameCheck.RunningFungame;
+
         void Action(string[] args)
         {
             Tools.CheckArgumentCount(args, 1);
             switch (args[1])
             {
                 case "reload":
-                    Info("fungame.reloaded");
-                    ReloadMap();
+                    Locale("fungame.reload");
+                    MapLoader.ReloadMap();
+                    break;
+                case "info":
+                    Locale("fungame.info.name", fungame.Name);
+                    Locale("fungame.info.id", fungame.Id);
+                    Locale("fungame.info.version", fungame.Version);
+                    Locale("fungame.info.authors", fungame.Authors);
+                    Locale("fungame.info.description", fungame.Description);
+                    Locale("fungame.info.feature", fungame.Feature);
+                    Locale("fungame.info.spawn", fungame.Spawn);
+                    break;
+                case "spawn":
+                    Locale("fungame.spawn");
+                    Player.Tp(fungame.SpawnPosition);
                     break;
                 default:
                     Warning("empty_type");
@@ -35,10 +50,12 @@ public class ModCommand : ModCommandBase
 
         Dictionary<int, List<string>> argAutofill2 = new Dictionary<int, List<string>>
         {
-            { 
+            {
                 0,
                 [
-                    "reload"
+                    "reload",
+                    "info",
+                    "spawn"
                 ]
             }
         };
@@ -76,43 +93,5 @@ public class ModCommand : ModCommandBase
     {
         var message = ModLocale.GetFormat($"{LocaleKeyPre}{key}", args);
         Log.Warning(message, Logger);
-    }
-
-    private static void ReloadMap()
-    {
-        try
-        {
-            var currentFungame = WorldGenerationPatch.CurrentFungame;
-
-            if (currentFungame == null)
-            {
-                Error("no_current_fungame");
-                return;
-            }
-
-            Info("restarting_scene");
-            RestartScene();
-        }
-        catch (Exception ex)
-        {
-            Error("reload_failed", ex.Message);
-        }
-    }
-
-    private static void RestartScene()
-    {
-        try
-        {
-            var currentScene = SceneManager.GetActiveScene();
-            Info("scene_reloading", currentScene.name);
-
-            SceneManager.LoadScene(currentScene.buildIndex);
-
-            Info("scene_reloaded");
-        }
-        catch (Exception ex)
-        {
-            Error("scene_reload_failed", ex.Message);
-        }
     }
 }

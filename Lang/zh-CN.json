@@ -4,6 +4,14 @@
     "forgiving_level": "仁慈关卡",
     "gravity": "重力"
   },
+  "command": {
+    "fungame": {
+      "description": "Fungame 的相关指令",
+      "string": "选择功能",
+      "reload": "重载地图",
+      "reloaded": "正在重新加载地图..."
+    }
+  },
   "log": {
     "fungame_check": {
       "id_format_warning": "ID格式不正确，将自动修正",
@@ -36,7 +44,7 @@
       "features_empty": "features 数组为空，将被忽略",
       "features_element_invalid": "features 第 {0} 个元素格式不正确，已跳过",
       "no_data": "{0} 中没有 {1} 数据",
-      "row_data_empty": "{0}行数据为空",
+      "row_data_empty": "{0} 行数据为空",
       "field_missing_default": "缺少必需字段: {0}，已使用默认值 \"{1}\"",
       "field_null_default": "字段为空: {0}，已使用默认值 \"{1}\"",
       "field_empty_string_default": "字段为空字符串: {0}，已使用默认值 \"{1}\"",
@@ -69,6 +77,16 @@
       "background": "背景",
       "startup_command": "启动命令",
       "forgiving_level_mode": "仁慈关卡模式"
+    },
+    "modcommand": {
+      "empty_type": "未知的指令类型",
+      "no_current_fungame": "当前没有加载的 Fungame 配置",
+      "reload_success": "成功重新加载地图: {0}",
+      "reload_failed": "重新加载地图失败: {0}",
+      "restarting_scene": "正在重启场景...",
+      "scene_reloading": "正在重新加载场景: {0}",
+      "scene_reloaded": "场景已重新加载",
+      "scene_reload_failed": "重新加载场景失败: {0}"
     }
   }
 }

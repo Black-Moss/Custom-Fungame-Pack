@@ -21,7 +21,6 @@ public class Plugin : BaseUnityPlugin
 
         ModLocale.Initialize(Logger);
         _harmony.PatchAll();
-        // ModCommand.Initialize(Logger);
         FungameCheck.Initialize();
     }
 }

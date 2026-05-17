@@ -4,6 +4,14 @@
     "forgiving_level": "Forgiving Level",
     "gravity": "Gravity"
   },
+  "command": {
+    "fungame": {
+      "description": "Fungame 的相关指令",
+      "string": "Select function",
+      "reload": "Reload map",
+      "reloaded": "Reloading map..."
+    }
+  },
   "log": {
     "fungame_check": {
       "id_format_warning": "ID format is incorrect, will be automatically corrected",
@@ -69,6 +77,15 @@
       "background": "Background",
       "startup_command": "Startup commands",
       "forgiving_level_mode": "Forgiving level mode"
-    }
-  }
+    },
+    "modcommand": {
+      "empty_type": "Unknown command type",
+      "no_current_fungame": "No current Fungame configuration loaded",
+      "reload_success": "Successfully reloaded map: {0}",
+      "reload_failed": "Failed to reload map: {0}",
+      "restarting_scene": "Restarting scene...",
+      "scene_reloading": "Reloading scene: {0}",
+      "scene_reloaded": "Scene reloaded",
+      "scene_reload_failed": "Failed to reload scene: {0}"
+    }  }
 }

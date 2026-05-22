@@ -44,6 +44,11 @@ public static class MapLoader
         }
     }
 
+    public static void RefreshLoad()
+    {
+        LoadAndApplyMapFromFungame(FungameCheck.CurrentFungame);
+    }
+
     private static void ParseAndApplyStringMap(Fungame fungame)
     {
         var mapData = fungame.MapData;
@@ -112,7 +117,7 @@ public static class MapLoader
                 ProcessListValue(jArray, ref worldX, ref worldY, ref blockCount, ref itemCount, ref failCount);
                 break;
             }
-            case long intValue:
+            case int intValue:
             {
                 PlaceBlock(intValue, worldX, worldY, ref blockCount, ref failCount);
                 break;

@@ -43,6 +43,10 @@ public class ModCommand : ModCommandBase
                     CheckArg(args, 1);
                     MapLoader.LogFungameList();
                     break;
+                case "refresh":
+                    CheckArg(args, 1);
+                    MapLoader.RefreshLoad();
+                    break;
                 default:
                     Warning("empty_type");
                     break;
@@ -58,7 +62,8 @@ public class ModCommand : ModCommandBase
                     "info",
                     "spawn",
                     "select",
-                    "list"
+                    "list",
+                    "refresh"
                 ]
             }
         };

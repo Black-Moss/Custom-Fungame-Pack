@@ -35,6 +35,31 @@ public static class FungameCheck
         ValidDirectories.Clear();
         CheckFailDirectories.Clear();
         Fungames.Clear();
+        Fungames.Add(new Fungame
+        {
+            Name = $"{Plugin.Name} Template",
+            Id = "t",
+            Version = Plugin.Version,
+            Author = ["Black_Moss"],
+            Description = "a map template",
+            Spawn = [3, 0],
+            MapData = new MapData
+            {
+                Map =
+                [
+                    "6666666666",
+                    "6666666666",
+                    "6660000666",
+                    "6666666666",
+                    "6666666666",
+                ],
+                Key =
+                {
+                    { "6", 6 },
+                    { "0", 0 }
+                }
+            }
+        });
 
         foreach (var fungamesDirectory in directories)
         {
@@ -79,6 +104,7 @@ public static class FungameCheck
     {
         return CurrentFungame;
     }
+
     private static bool ValidateAndLoadFungame(string filePath)
     {
         try
@@ -131,7 +157,7 @@ public static class FungameCheck
                 }
             }
 
-            if (jsonObject.ContainsKey("custom_structures") 
+            if (jsonObject.ContainsKey("custom_structures")
                 && jsonObject["custom_structures"] != null)
             {
                 if (jsonObject.ContainsKey("map_data")
@@ -149,7 +175,7 @@ public static class FungameCheck
             {
                 errors.Add(Validation("missing_map_or_custom_structures"));
             }
-            
+
             if (jsonObject.ContainsKey("features") && jsonObject["features"] != null)
             {
                 ValidateFeatures(jsonObject["features"] as JArray, errors, warnings);
@@ -240,10 +266,11 @@ public static class FungameCheck
         {
             errors.Add(Validation("map_missing_field", "map"));
         }
-        else if (mapObject["map"] == null 
+        else if (mapObject["map"] == null
                  || mapObject["map"].Type != JTokenType.Array)
         {
-            errors.Add(Validation("map_field_type_error", "map", "array")); }
+            errors.Add(Validation("map_field_type_error", "map", "array"));
+        }
 
         else
         {
@@ -273,7 +300,7 @@ public static class FungameCheck
             errors.Add(Validation("map_field_type_error", "key", "object"));
         }
 
-        if (!mapObject.ContainsKey("items") 
+        if (!mapObject.ContainsKey("items")
             || mapObject["items"] == null)
             return;
 
@@ -352,7 +379,6 @@ public static class FungameCheck
         if (maxColCount != 0) return true;
         Warning(Validation("row_data_empty", Locale("common.map")));
         return false;
-
     }
 
     private static void ValidateRequiredFieldWithDefault(JObject jsonObject, string fieldName, List<string> warnings,
@@ -455,12 +481,12 @@ public static class FungameCheck
     {
         return ModLocale.Log($"{LocaleKeyPre}{key}", args);
     }
-    
+
     private static string Validation(string key, params object[] args)
     {
         return ModLocale.Log($"validation.{key}", args);
     }
-    
+
     private static void Warning(string key)
     {
         Log.Warning(key, _logger);

@@ -29,7 +29,7 @@ public static class WorldGenerationPatch
             if (fungame.MapData != null)
             {
                 WorldGeneration.biomeOverride = fungame.MapData.Type;
-                Warning($"Set scene type to: {fungame.MapData.Type}");
+                Info("scene_type_set", fungame.MapData.Type);
             }
             else
             {
@@ -93,7 +93,7 @@ public static class WorldGenerationPatch
         }
 
         float gravityScale = features.Gravity;
-        Physics2D.gravity = new Vector2(0, -9.81f * gravityScale);
+        Physics2D.gravity = new Vector2(0, gravityScale);
     }
 
     private static void SetDefaultSceneType(WorldGeneration __instance)
@@ -172,6 +172,8 @@ public static class WorldGenerationPatch
         {
             Error("no_valid_directories");
         }
+
+        if (fungame.Feature.Fullbright) Console.ConsoleScript.fullBright = true;
     }
 
     private static void SpawnMap(Fungame fungame)

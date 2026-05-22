@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Diagnostics;
 using System.Linq;
 using BepInEx.Logging;
 using MossLib.Tool;
@@ -10,21 +10,23 @@ namespace CustomFungamePack;
 
 public static class MapLoader
 {
-    private const string LocaleKeyPre = "log.map_loader.";
+    private const string LocaleKeyPre = "map_loader.";
     private static readonly ManualLogSource Logger = Plugin.Logger;
 
     public static void LoadAndApplyMapFromFungame(Fungame fungame)
     {
         try
         {
-            if (fungame?.MapData == null)
+            if (fungame?.MapData == null && fungame?.CustomStructures != null)
             {
                 Error("load_error");
                 return;
             }
 
+            Debug.Assert(fungame != null, nameof(fungame) + " != null");
             var mapData = fungame.MapData;
 
+            Debug.Assert(mapData != null, nameof(mapData) + " != null");
             if (mapData.Map == null || mapData.Map.Length == 0)
             {
                 Error("invalid_format");
@@ -47,7 +49,7 @@ public static class MapLoader
         var mapData = fungame.MapData;
         if (mapData.Map == null || mapData.Map.Length == 0)
         {
-            Warning("validation.no_data", ModLocale.GetFormat("log.common.map"), "string map");
+            Warning("validation.no_data", ModLocale.Log("common.map"), "string map");
             return;
         }
 
@@ -190,7 +192,7 @@ public static class MapLoader
         }
         catch (Exception ex)
         {
-            Error("place_failed", x, y, ModLocale.GetFormat("log.common.block"), blockId, ex.Message);
+            Error("place_failed", x, y, ModLocale.Log("common.block"), blockId, ex.Message);
             failCount++;
         }
     }
@@ -204,23 +206,22 @@ public static class MapLoader
         }
         catch (Exception ex)
         {
-            Error("place_failed", x, y, ModLocale.GetFormat("log.common.item"), itemId, ex.Message);
+            Error("place_failed", x, y, ModLocale.Log("common.item"), itemId, ex.Message);
             failCount++;
         }
     }
     
     public static void ReloadMap(Fungame fungame)
     {
+        if (fungame == null)
+        {
+            Error("no_current_fungame");
+            return;
+        }
         World.CheckForWorld();
         Log.Divider();
         try
         {
-            if (fungame == null)
-            {
-                Error("no_current_fungame");
-                return;
-            }
-
             Info("restarting_scene");
             RestartScene();
         }
@@ -264,25 +265,25 @@ public static class MapLoader
     
     private static void LogConsole(string key, params object[] args)
     {
-        var message = ModLocale.GetFormat($"command.fungame.{key}", args);
+        var message = ModLocale.Log($"command.fungame.{key}", args);
         Log.Info(message, Logger);
     }
 
     private static void Info(string key, params object[] args)
     {
-        var message = ModLocale.GetFormat($"{LocaleKeyPre}{key}", args);
+        var message = ModLocale.Log($"{LocaleKeyPre}{key}", args);
         Log.Info(message, Logger);
     }
 
     private static void Error(string key, params object[] args)
     {
-        var message = ModLocale.GetFormat($"{LocaleKeyPre}{key}", args);
+        var message = ModLocale.Log($"{LocaleKeyPre}{key}", args);
         Log.Error(message, Logger);
     }
 
     private static void Warning(string key, params object[] args)
     {
-        var message = ModLocale.GetFormat($"{LocaleKeyPre}{key}", args);
+        var message = ModLocale.Log($"{LocaleKeyPre}{key}", args);
         Log.Warning(message, Logger);
     }
 }

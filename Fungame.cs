@@ -19,6 +19,8 @@ public class Fungame
     public float[] Spawn { get; set; } = [0, 0];
     [JsonProperty("map_data")]
     public MapData MapData { get; set; }
+    [JsonProperty("custom_structures")]
+    public string CustomStructures;
 
     public string Authors => Author is { Count: > 0 }
         ? string.Join(", ", Author)

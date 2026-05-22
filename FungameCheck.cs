@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BepInEx.Logging;
-using MossLib;
 using MossLib.Tool;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -13,7 +12,7 @@ namespace CustomFungamePack;
 public static class FungameCheck
 {
     private static ManualLogSource _logger;
-    private const string LocaleKeyPre = "log.fungame_check.";
+    private const string LocaleKeyPre = "fungame_check.";
     private static readonly string FungamesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fungames");
     public static readonly List<string> ValidDirectories = [];
     public static readonly List<string> CheckFailDirectories = [];
@@ -102,7 +101,7 @@ public static class FungameCheck
 
             ValidateRequiredFieldWithDefault(jsonObject, "name", warnings, "Unnamed Fungame");
             ValidateRequiredFieldWithDefault(jsonObject, "id", warnings, GenerateDefaultId(filePath));
-            ValidateRequiredFieldWithDefault(jsonObject, "version", warnings, "1.0");
+            ValidateRequiredFieldWithDefault(jsonObject, "version", warnings, "1.0.0");
             ValidateRequiredListFieldWithDefault(jsonObject, "author", warnings, "Unknown");
             ValidateRequiredFieldWithDefault(jsonObject, "description", warnings, "No description provided");
             ValidateOptionalListField(jsonObject, "command", warnings);
@@ -137,11 +136,25 @@ public static class FungameCheck
                 }
             }
 
-            if (jsonObject.ContainsKey("map_data") && jsonObject["map_data"] != null)
+            if (jsonObject.ContainsKey("custom_structures") 
+                && jsonObject["custom_structures"] != null)
+            {
+                if (jsonObject.ContainsKey("map_data")
+                    && jsonObject["map_data"] != null)
+                {
+                    errors.Add(Validation("map_and_custom_structures_conflict"));
+                }
+            }
+            else if (jsonObject.ContainsKey("map_data")
+                     && jsonObject["map_data"] != null)
             {
                 ValidateMapData(jsonObject["map_data"] as JObject, errors);
             }
-
+            else
+            {
+                errors.Add(Validation("missing_map_or_custom_structures"));
+            }
+            
             if (jsonObject.ContainsKey("features") && jsonObject["features"] != null)
             {
                 ValidateFeatures(jsonObject["features"] as JArray, errors, warnings);
@@ -444,12 +457,12 @@ public static class FungameCheck
 
     private static string Locale(string key, params object[] args)
     {
-        return ModLocale.GetFormat($"{LocaleKeyPre}{key}", args);
+        return ModLocale.Log($"{LocaleKeyPre}{key}", args);
     }
     
     private static string Validation(string key, params object[] args)
     {
-        return ModLocale.GetFormat($"log.validation.{key}", args);
+        return ModLocale.Log($"validation.{key}", args);
     }
     
     private static void Warning(string key)

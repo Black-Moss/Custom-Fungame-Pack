@@ -33,4 +33,9 @@ public class ModLocale : ModLocaleBase
             return $"[{key}]";
         }
     }
+
+    public static string Log(string key, params object[] args)
+    {
+        return GetFormat($"log.{key}", args);
+    }
 }

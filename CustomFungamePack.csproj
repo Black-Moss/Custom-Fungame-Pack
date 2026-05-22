@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <Product>CustomFungamePack</Product>
     <Version>1.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -42,7 +42,7 @@
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="MossLib">
-      <HintPath>E:\MossProject\CasualtiesUnknown\Moss-Lib\bin\Debug\net48\MossLib.dll</HintPath>
+      <HintPath>E:\MossProject\CasualtiesUnknown\Moss-Lib\bin\Debug\net472\MossLib.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\netstandard.dll</HintPath>

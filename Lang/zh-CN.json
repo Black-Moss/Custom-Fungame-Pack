@@ -37,7 +37,7 @@
       "id_format_warning": "ID格式不正确，将自动修正",
       "author_not_string": "作者元素 {0} 不是字符串，已移除",
       "author_empty": "作者数组为空，已设置默认值",
-      "version_format_warning": "版本格式'{0}'不正确，将使用默认版本'1.0'"
+      "version_format_warning": "版本格式'{0}'不正确，将使用默认版本'1.0.0'"
     },
     "world_generation": {
       "scene_type_set": "设置场景类型为: {0}",
@@ -60,6 +60,8 @@
       "map_row_not_string": "地图 map 第 {0} 行必须是字符串",
       "map_item_row_not_array": "地图 items 第 {0} 行必须是数组",
       "map_item_not_string": "地图 items[{0}][{1}] 必须是字符串",
+      "map_and_custom_structures_conflict": "不能同时使用 map_data 和 custom_structures",
+      "missing_map_or_custom_structures": "缺少 map_data 或 custom_structures",
       "features_invalid_type": "features 字段必须是数组或对象",
       "features_empty": "features 数组为空，将被忽略",
       "features_element_invalid": "features 第 {0} 个元素格式不正确，已跳过",
@@ -88,7 +90,8 @@
       "restarting_scene": "正在重启场景...",
       "scene_reloading": "正在重新加载场景: {0}",
       "scene_reloaded": "场景已重新加载",
-      "scene_reload_failed": "重新加载场景失败: {0}"
+      "scene_reload_failed": "重新加载场景失败: {0}",
+      "no_current_fungame": "当前没有加载的 Fungame 配置"
     },
     "error": {
       "no_fungame_file": "找不到 fungame.json 文件: {0}",
@@ -105,8 +108,11 @@
       "forgiving_level_mode": "仁慈关卡模式"
     },
     "modcommand": {
-      "empty_type": "未知的指令类型",
-      "no_current_fungame": "当前没有加载的 Fungame 配置"
+      "empty_type": "未知的指令类型"
+    },
+    "custom_structures_loader": {
+      "loading": "正在加载自定义结构: {0}",
+      "failed": "加载自定义结构({0})失败: {1}"
     }
   }
 }

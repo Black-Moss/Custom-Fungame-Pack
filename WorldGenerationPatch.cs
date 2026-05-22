@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using BepInEx.Logging;
 using HarmonyLib;
-using MossLib;
 using System.IO;
 using MossLib.Tool;
 using UnityEngine;
@@ -13,7 +12,7 @@ namespace CustomFungamePack;
 [HarmonyPatch(typeof(WorldGeneration))]
 public static class WorldGenerationPatch
 {
-    private const string LocaleKeyPre = "log.world_generation.";
+    private const string LocaleKeyPre = "world_generation.";
     private static readonly ManualLogSource Logger = Plugin.Logger;
     internal static WorldGeneration WorldGeneration;
     internal static Fungame CurrentFungame;
@@ -94,10 +93,10 @@ public static class WorldGenerationPatch
             {
                 case "fullbright":
                     Info("feature_enabled", ModLocale.GetFormat("feature.fullbright"));
-                    Console.RunCommand("fullbright");
+                    Console.ConsoleScript.fullBright = true;
                     break;
                 case "forgiving_level":
-                    Info("feature_enabled", ModLocale.GetFormat("log.common.forgiving_level_mode"));
+                    Info("feature_enabled", ModLocale.GetFormat("feature.forgiving_level_mode"));
                     break;
                 case "gravity":
                     Info("feature_enabled_with_value", ModLocale.GetFormat("feature.gravity"),
@@ -156,8 +155,9 @@ public static class WorldGenerationPatch
     [HarmonyPrefix]
     public static bool SkipWorldCreateBackground()
     {
-        if (CurrentFungame?.MapData?.SkipBackground != true) return true;
-        Info("skip_generation", ModLocale.GetFormat("log.common.background"));
+        if (CurrentFungame?.MapData is not { SkipBackground: true } ||
+            CurrentFungame.CustomStructures != null) return true;
+        Info("skip_generation", ModLocale.Log("common.background"));
         return false;
     }
 
@@ -165,8 +165,9 @@ public static class WorldGenerationPatch
     [HarmonyPrefix]
     public static bool SkipWorldGenerateStructures()
     {
-        if (CurrentFungame?.MapData?.SkipStructures != true) return true;
-        Info("skip_generation", ModLocale.GetFormat("log.common.structure"));
+        if (CurrentFungame?.MapData is not { SkipStructures: true } ||
+            CurrentFungame.CustomStructures != null) return true;
+        Info("skip_generation", ModLocale.Log("common.structure"));
         return false;
     }
 
@@ -174,8 +175,9 @@ public static class WorldGenerationPatch
     [HarmonyPrefix]
     public static bool SkipWorldGenerateTerrain()
     {
-        if (CurrentFungame?.MapData?.SkipTerrain != true) return true;
-        Info("skip_generation", ModLocale.GetFormat("log.common.terrain"));
+        if (CurrentFungame?.MapData is not { SkipTerrain: true } || CurrentFungame.CustomStructures != null)
+            return true;
+        Info("skip_generation", ModLocale.Log("common.terrain"));
         return false;
     }
 
@@ -187,21 +189,9 @@ public static class WorldGenerationPatch
 
         var fungame = FungameCheck.GetRunningFungame();
         
-        if (fungame != null && fungame.MapData != null)
+        if (fungame is { MapData: not null })
         {
-            Info("loading_fungame_map", fungame.Name);
-            WorldGeneration.loadingText.text = Locale("loading_fungame_map", fungame.Name);
-            MapLoader.LoadAndApplyMapFromFungame(fungame);
-            ExecuteCommands(fungame);
-            Player.Tp(fungame.SpawnPosition);
-
-            string modInfo = $"{fungame.Name} v{fungame.Version}";
-            string authorInfo = $"by {fungame.Authors}";
-            string description = fungame.Description;
-
-            Player.Alert($"{modInfo}\n{authorInfo}", true);
-            Player.Alert(description, false, 6f);
-            MapLoader.LogMapInfo();
+            SpawnMap(fungame);
         }
         else if (FungameCheck.ValidDirectories.Count > 0)
         {
@@ -215,19 +205,11 @@ public static class WorldGenerationPatch
 
                 if (fallbackFungame?.MapData != null)
                 {
-                    Info("loading_fungame_map", fallbackFungame.Name);
-                    WorldGeneration.loadingText.text = Locale("loading_fungame_map", fallbackFungame.Name);
-                    MapLoader.LoadAndApplyMapFromFungame(fallbackFungame);
-                    ExecuteCommands(fallbackFungame);
-                    Player.Tp(fallbackFungame.SpawnPosition);
-
-                    string modInfo = $"{fallbackFungame.Name} v{fallbackFungame.Version}";
-                    string authorInfo = $"by {fallbackFungame.Authors}";
-                    string description = fallbackFungame.Description;
-
-                    Player.Alert($"{modInfo}\n{authorInfo}", true);
-                    Player.Alert(description, false, 6f);
-                    MapLoader.LogMapInfo();
+                    SpawnMap(fallbackFungame);
+                }
+                else if (fallbackFungame?.CustomStructures != null)
+                {
+                    CustomStructuresLoader.SpawnCustomStructures(fallbackFungame);
                 }
                 else
                 {
@@ -244,19 +226,36 @@ public static class WorldGenerationPatch
             Error("no_valid_directories");
         }
     }
+
+    private static void SpawnMap(Fungame fungame)
+    {
+        Info("loading_fungame_map", fungame.Name);
+        WorldGeneration.loadingText.text = Locale("loading_fungame_map", fungame.Name);
+        MapLoader.LoadAndApplyMapFromFungame(fungame);
+        ExecuteCommands(fungame);  
+        Player.Tp(fungame.SpawnPosition);
+
+        string modInfo = $"{fungame.Name} v{fungame.Version}";
+        string authorInfo = $"by {fungame.Authors}";
+        string description = fungame.Description;
+
+        Player.Alert($"{modInfo}\n{authorInfo}", true);
+        Player.Alert(description, false, 6f);
+        MapLoader.LogMapInfo();
+    }
     
     private static void ExecuteCommands(Fungame fungame)
     {
         var commands = fungame.Command;
         if (commands == null || commands.Count == 0)
         {
-            Info("no_commands", ModLocale.GetFormat("log.common.startup_command"));
+            Info("no_commands", ModLocale.Log("common.startup_command"));
             return;
         }
 
         foreach (var command in commands)
         {
-            Info("executing_command", ModLocale.GetFormat("log.common.startup_command"), command);
+            Info("executing_command", ModLocale.Log("common.startup_command"), command);
             Console.RunCommand(command);
         }
     }
@@ -269,7 +268,7 @@ public static class WorldGenerationPatch
 
     private static void Error(string key, params object[] args)
     {
-        var message = ModLocale.GetFormat($"log.error.{key}", args);
+        var message = ModLocale.Log($"error.{key}", args);
         Log.Error(message, Logger);
     }
 
@@ -281,6 +280,6 @@ public static class WorldGenerationPatch
 
     private static string Locale(string key, params object[] args)
     {
-        return ModLocale.GetFormat($"{LocaleKeyPre}{key}", args);
+        return ModLocale.Log($"{LocaleKeyPre}{key}", args);
     }
 }

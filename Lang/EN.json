@@ -6,7 +6,7 @@
   },
   "command": {
     "fungame": {
-      "description": "Fungame 的相关指令",
+      "description": "Fungame related commands",
       "string": "Select function",
       "parameter": "Function parameter",
       "reload": "Reloading map...",
@@ -37,7 +37,7 @@
       "id_format_warning": "ID format is incorrect, will be automatically corrected",
       "author_not_string": "Author element {0} is not a string, removed",
       "author_empty": "Author array is empty, set default value",
-      "version_format_warning": "Version format '{0}' is incorrect, will use default version '1.0'"
+      "version_format_warning": "Version format '{0}' is incorrect, will use default version '1.0.0'"
     },
     "world_generation": {
       "scene_type_set": "Set scene type to: {0}",
@@ -60,6 +60,8 @@
       "map_row_not_string": "Map map row {0} must be a string",
       "map_item_row_not_array": "Map items row {0} must be an array",
       "map_item_not_string": "Map items[{0}][{1}] must be a string",
+      "map_and_custom_structures_conflict": "Cannot use map_data and custom_structures at the same time",
+      "missing_map_or_custom_structures": "Missing map_data or custom_structures",
       "features_invalid_type": "features field must be an array or object",
       "features_empty": "features array is empty, will be ignored",
       "features_element_invalid": "features element {0} format is incorrect, skipped",
@@ -88,7 +90,8 @@
       "restarting_scene": "Restarting scene...",
       "scene_reloading": "Reloading scene: {0}",
       "scene_reloaded": "Scene reloaded",
-      "scene_reload_failed": "Failed to reload scene: {0}"
+      "scene_reload_failed": "Failed to reload scene: {0}",
+      "no_current_fungame": "No current Fungame configuration loaded"
     },
     "error": {
       "no_fungame_file": "Cannot find fungame.json file: {0}",
@@ -105,8 +108,11 @@
       "forgiving_level_mode": "Forgiving level mode"
     },
     "modcommand": {
-      "empty_type": "Unknown command type",
-      "no_current_fungame": "No current Fungame configuration loaded"
+      "empty_type": "Unknown command type"
+    },
+    "custom_structures_loader": {
+      "loading": "Loading custom structure: {0}",
+      "failed": "Failed to load custom structure ({0}): {1}"
     }
   }
 }

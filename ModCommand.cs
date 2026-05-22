@@ -10,8 +10,8 @@ namespace CustomFungamePack;
 public class ModCommand : ModCommandBase
 {
     private new static readonly ManualLogSource Logger = Plugin.Logger;
-    private const string LocaleKeyPre = "log.modcommand.";
-    private static readonly Fungame Fungame = WorldGenerationPatch.CurrentFungame;
+    private const string LocaleKeyPre = "modcommand.";
+    private static Fungame Fungame => FungameCheck.CurrentFungame;
 
     [HarmonyPatch("RegisterAllCommands")]
     [HarmonyPostfix]
@@ -25,7 +25,6 @@ public class ModCommand : ModCommandBase
             {
                 case "reload":
                     CheckArg(args, 1);
-                    LogConsole("reload");
                     MapLoader.ReloadMap(Fungame);
                     break;
                 case "info":
@@ -120,7 +119,7 @@ public class ModCommand : ModCommandBase
         }
 
         WorldGenerationPatch.CurrentFungame = fungame;
-        
+
         Command("select.success", fungame.Name, fungame.Id);
         MapLoader.ReloadMap(fungame);
     }
@@ -156,19 +155,19 @@ public class ModCommand : ModCommandBase
 
     private static void Info(string key, params object[] args)
     {
-        var message = ModLocale.GetFormat($"{LocaleKeyPre}{key}", args);
+        var message = ModLocale.Log($"{LocaleKeyPre}{key}", args);
         Log.Info(message, Logger);
     }
 
     private static void Error(string key, params object[] args)
     {
-        var message = ModLocale.GetFormat($"{LocaleKeyPre}{key}", args);
+        var message = ModLocale.Log($"{LocaleKeyPre}{key}", args);
         Log.Error(message, Logger);
     }
 
     private static void Warning(string key, params object[] args)
     {
-        var message = ModLocale.GetFormat($"{LocaleKeyPre}{key}", args);
+        var message = ModLocale.Log($"{LocaleKeyPre}{key}", args);
         Log.Warning(message, Logger);
     }
 }

@@ -157,17 +157,22 @@ public static class FungameCheck
                 }
             }
 
-            if (jsonObject.ContainsKey("custom_structures")
-                && jsonObject["custom_structures"] != null)
+            bool hasCustomStructuresMod = Type.GetType("Custom_Structures.Plugin, Custom Structures") != null;
+            bool hasCustomStructuresField = jsonObject.ContainsKey("custom_structures") && jsonObject["custom_structures"] != null;
+            bool hasMapData = jsonObject.ContainsKey("map_data") && jsonObject["map_data"] != null;
+
+            if (hasCustomStructuresField && hasMapData)
             {
-                if (jsonObject.ContainsKey("map_data")
-                    && jsonObject["map_data"] != null)
+                errors.Add(Validation("map_and_custom_structures_conflict"));
+            }
+            else if (hasCustomStructuresField)
+            {
+                if (!hasCustomStructuresMod)
                 {
-                    errors.Add(Validation("map_and_custom_structures_conflict"));
+                    errors.Add(Validation("custom_structures_without_mod"));
                 }
             }
-            else if (jsonObject.ContainsKey("map_data")
-                     && jsonObject["map_data"] != null)
+            else if (hasMapData)
             {
                 ValidateMapData(jsonObject["map_data"] as JObject, errors);
             }
@@ -176,6 +181,7 @@ public static class FungameCheck
                 errors.Add(Validation("missing_map_or_custom_structures"));
             }
 
+            
             if (jsonObject.ContainsKey("features") && jsonObject["features"] != null)
             {
                 ValidateFeatures(jsonObject["features"] as JArray, errors, warnings);

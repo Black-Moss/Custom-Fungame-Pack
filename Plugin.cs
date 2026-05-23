@@ -1,6 +1,7 @@
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using CustomFungamePack.Lang;
 using HarmonyLib;
 using MossLib.Tool;
 
@@ -13,7 +14,7 @@ public class Plugin : BaseUnityPlugin
     public const string Guid = "blackmoss.customfungamepack";
     public const string Name = "Custom Fungame Pack";
     public const string Version = "1.0.0";
-    
+
     internal new static ManualLogSource Logger;
     private readonly Harmony _harmony = new(Guid);
     internal static Plugin Instance { get; private set; }
@@ -23,11 +24,15 @@ public class Plugin : BaseUnityPlugin
     {
         Instance = this;
         Logger = base.Logger;
-        
+
         ModLocale.Initialize(Logger);
+        LocaleGenerator.Register(new EnLangGenerator(), Logger);
+        LocaleGenerator.Register(new ZhCnLangGenerator(), Logger);
+        LocaleGenerator.GenerateAll();
+        
         _harmony.PatchAll();
         FungameCheck.Initialize();
-        
+
         MoreLogs = Config.Bind(
             "General",
             "MoreLogs",

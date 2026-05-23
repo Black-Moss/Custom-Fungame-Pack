@@ -27,10 +27,6 @@ $ModDll = [System.IO.Path]::Combine($PSScriptRoot, "bin/Debug/net472", "$ModName
 # 统一使用 ModName 作为目标文件夹名称
 $targetModFolder = $ModName
 
-# Lang 文件夹路径
-$sourceLangPath = [System.IO.Path]::Combine($PSScriptRoot, "Lang") # 源 Lang 文件夹
-$destLangPath = [System.IO.Path]::Combine($bepInExPath, "plugins", $targetModFolder, "Lang") # 目标 Lang 文件夹
-
 # 文档文件列表
 $docFiles = @("README.md", "README_ZH.md", "LICENSE.md", "Cover.png")
 
@@ -100,55 +96,15 @@ catch {
     exit 1
 }
 
-# 处理 Lang 文件夹 - 统一使用 ModName 文件夹
-try {
-    # 创建目标 Lang 目录
-    if (-not (Test-Path $destLangPath)) {
-        New-Item -ItemType Directory -Path $destLangPath -Force
-        Write-ColoredMessage "Created Lang directory at ""$destLangPath""" Cyan
-    }
-
-    # 如果源 Lang 目录存在，则复制所有文件
-    if (Test-Path $sourceLangPath -PathType Container) {
-        # 先清空目标目录中的现有文件
-        Get-ChildItem -Path $destLangPath -File | Remove-Item -Force
-        # 复制所有文件（包括子目录）
-        Copy-Item -Path "$sourceLangPath\*" -Destination $destLangPath -Recurse -Force
-        Write-ColoredMessage "Successfully copied all Lang files from ""$sourceLangPath"" to ""$destLangPath""" Green
-    } else {
-        Write-ColoredMessage "Source Lang directory not found at ""$sourceLangPath"". Created empty directory." Yellow
-    }
-}
-catch {
-    Write-Warning "Failed to process Lang directory: $_"
-    exit 1
-}
-
-# 验证 Lang 文件是否成功复制
-try {
-    $copiedFiles = Get-ChildItem -Path $destLangPath -File
-    if ($copiedFiles.Count -gt 0) {
-        Write-ColoredMessage "Verified copied Lang files:" Cyan
-        foreach ($file in $copiedFiles) {
-            Write-ColoredMessage "  - $($file.Name)" Cyan
-        }
-    } else {
-        Write-ColoredMessage "Warning: No Lang files were copied!" Yellow
-    }
-}
-catch {
-    Write-Warning "Failed to verify copied Lang files: $_"
-}
-
 # 复制文档文件到插件目录
 try {
     $destDocPath = [System.IO.Path]::Combine($bepInExPath, "plugins", $targetModFolder)
     $copiedDocs = 0
-    
+
     foreach ($docFile in $docFiles) {
         $sourceDocPath = [System.IO.Path]::Combine($PSScriptRoot, $docFile)
         $destDocFilePath = [System.IO.Path]::Combine($destDocPath, $docFile)
-        
+
         if (Test-Path $sourceDocPath -PathType Leaf) {
             Copy-Item $sourceDocPath $destDocFilePath -Force
             Write-ColoredMessage "Copying document file ""$docFile"" to ""$destDocFilePath""." Cyan
@@ -157,7 +113,7 @@ try {
             Write-ColoredMessage "Document file ""$docFile"" not found, skipping." Yellow
         }
     }
-    
+
     if ($copiedDocs -gt 0) {
         Write-ColoredMessage "Successfully copied $copiedDocs document file(s) to plugin directory." Green
     }

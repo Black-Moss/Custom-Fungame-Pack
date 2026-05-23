@@ -42,7 +42,7 @@
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="MossLib">
-      <HintPath>E:\MossProject\CasualtiesUnknown\Moss-Lib\bin\Debug\net472\MossLib.dll</HintPath>
+      <HintPath>..\Moss-Lib\bin\Debug\net472\MossLib.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\netstandard.dll</HintPath>

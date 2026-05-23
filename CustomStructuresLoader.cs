@@ -29,12 +29,18 @@ public static class CustomStructuresLoader
             var pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Player.Tp(pos);
             
-            Info("loading", fungame.CustomStructures);
+            MoreLogs("loading", fungame.CustomStructures);
         }
         catch (Exception e)
         {
             Error("failed", fungame, e);
         }
+    }
+
+    private static void MoreLogs(string key, params object[] args)
+    {
+        if (Configs.MoreLogs)
+            Info(key, args);
     }
     
     private static void Info(string key, params object[] args)

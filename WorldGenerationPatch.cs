@@ -1,8 +1,10 @@
-﻿using BepInEx.Logging;
+﻿using System;
+using BepInEx.Logging;
 using HarmonyLib;
 using System.IO;
 using MossLib.Tool;
 using UnityEngine;
+using Console = MossLib.Tool.Console;
 
 namespace CustomFungamePack;
 
@@ -29,7 +31,7 @@ public static class WorldGenerationPatch
             if (fungame.MapData != null)
             {
                 WorldGeneration.biomeOverride = fungame.MapData.Type;
-                Info("scene_type_set", fungame.MapData.Type);
+                Log.Info($"Set scene type to: {fungame.MapData.Type}", Logger);
             }
             else
             {
@@ -52,7 +54,7 @@ public static class WorldGenerationPatch
                 if (fungame.MapData != null)
                 {
                     WorldGeneration.biomeOverride = fungame.MapData.Type;
-                    Warning($"Set scene type to: {fungame.MapData.Type}");
+                    Log.Warning($"Set scene type to: {fungame.MapData.Type}", Logger);
                 }
                 else
                 {
@@ -61,13 +63,13 @@ public static class WorldGenerationPatch
             }
             else
             {
-                Warning("Cannot find fungame.json file: {fungameFilePath}");
+                Log.Warning($"Cannot find fungame.json file: {fungameFilePath}", Logger);
                 SetDefaultSceneType(WorldGeneration);
             }
         }
         else
         {
-            Warning("No valid Fungame directories, please check the Fungames folder");
+            Log.Warning("No valid Fungame directories, please check the Fungames folder", Logger);
             SetDefaultSceneType(WorldGeneration);
         }
     }
@@ -92,8 +94,7 @@ public static class WorldGenerationPatch
             }
         }
 
-        float gravityScale = features.Gravity;
-        Physics2D.gravity = new Vector2(0, gravityScale);
+        Physics2D.gravity = new Vector2(0, features.Gravity);
     }
 
     private static void SetDefaultSceneType(WorldGeneration __instance)
@@ -106,7 +107,7 @@ public static class WorldGenerationPatch
     public static bool SkipWorldCreateBackground()
     {
         if (!CurrentFungame.Feature.SkipBackground) return true;
-        Info("skip_generation", ModLocale.Log("common.background"));
+        MoreLogs("skip_generation", ModLocale.Log("common.background"));
         return false;
     }
 
@@ -115,7 +116,7 @@ public static class WorldGenerationPatch
     public static bool SkipWorldGenerateStructures()
     {
         if (!CurrentFungame.Feature.SkipStructures) return true;
-        Info("skip_generation", ModLocale.Log("common.structure"));
+        MoreLogs("skip_generation", ModLocale.Log("common.structure"));
         return false;
     }
 
@@ -124,7 +125,7 @@ public static class WorldGenerationPatch
     public static bool SkipWorldGenerateTerrain()
     {
         if (!CurrentFungame.Feature.SkipTerrain) return true;
-        Info("skip_generation", ModLocale.Log("common.terrain"));
+        MoreLogs("skip_generation", ModLocale.Log("common.terrain"));
         return false;
     }
 
@@ -156,29 +157,39 @@ public static class WorldGenerationPatch
                 }
                 else if (fallbackFungame?.CustomStructures != null)
                 {
-                    CustomStructuresLoader.SpawnCustomStructures(fallbackFungame);
+                    bool hasCustomStructuresMod = Type.GetType("Custom_Structures.Plugin, Custom Structures") != null;
+                    if (hasCustomStructuresMod)
+                    {
+                        CustomStructuresLoader.SpawnCustomStructures(fallbackFungame);
+                    }
+                    else
+                    {
+                        Error("custom_structures_mod_not_loaded", fallbackFungame.Name);
+                    }
                 }
                 else
                 {
                     Warning("no_map_data", fallbackFungame?.Name ?? "Unknown");
                 }
             }
-            else
-            {
-                Error("no_fungame_file", fungameFilePath);
-            }
         }
         else
         {
             Error("no_valid_directories");
         }
+    }
 
-        if (fungame.Feature.Fullbright) Console.ConsoleScript.fullBright = true;
+    [HarmonyPatch(typeof(ConsoleScript), "Update")]
+    [HarmonyPostfix]
+    public static void ConsoleScriptUpdate(ConsoleScript __instance)
+    {
+        if (CurrentFungame?.Feature == null) return;
+        if (CurrentFungame.Feature.Fullbright) __instance.fullBright = true;
     }
 
     private static void SpawnMap(Fungame fungame)
     {
-        Info("loading_fungame_map", fungame.Name);
+        MoreLogs("loading_fungame_map", fungame.Name);
         WorldGeneration.loadingText.text = Locale("loading_fungame_map", fungame.Name);
         MapLoader.LoadAndApplyMapFromFungame(fungame);
         ExecuteCommands(fungame);
@@ -190,7 +201,6 @@ public static class WorldGenerationPatch
 
         Player.Alert($"{modInfo}\n{authorInfo}", true);
         Player.Alert(description, false, 6f);
-        MapLoader.LogMapInfo();
     }
 
     private static void ExecuteCommands(Fungame fungame)
@@ -198,15 +208,21 @@ public static class WorldGenerationPatch
         var commands = fungame.Command;
         if (commands == null || commands.Count == 0)
         {
-            Info("no_commands", ModLocale.Log("common.startup_command"));
+            MoreLogs("no_commands", ModLocale.Log("common.startup_command"));
             return;
         }
 
         foreach (var command in commands)
         {
-            Info("executing_command", ModLocale.Log("common.startup_command"), command);
+            MoreLogs("executing_command", ModLocale.Log("common.startup_command"), command);
             Console.RunCommand(command);
         }
+    }
+        
+    private static void MoreLogs(string key, params object[] args)
+    {
+        if (Configs.MoreLogs)
+            Info(key, args);
     }
 
     private static void Info(string key, params object[] args)

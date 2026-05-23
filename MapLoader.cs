@@ -46,7 +46,7 @@ public static class MapLoader
 
             ParseAndApplyStringMap(fungame);
 
-            Info("load_success", mapData.X, mapData.Y, mapData.Map.Length,
+            MoreLogs("load_success", mapData.X, mapData.Y, mapData.Map.Length,
                 mapData.Map.Max(row => row?.Length ?? 0));
         }
         catch (Exception ex)
@@ -111,7 +111,7 @@ public static class MapLoader
             worldY--;
         }
 
-        Info("string_map_applied", blockCount, itemCount, failCount);
+        MoreLogs("string_map_applied", blockCount, itemCount, failCount);
     }
 
     private static void ProcessValue(object value, ref int worldX, ref int worldY, ref int blockCount,
@@ -240,7 +240,7 @@ public static class MapLoader
         Log.Divider();
         try
         {
-            Info("restarting_scene");
+            MoreLogs("restarting_scene");
             RestartScene();
         }
         catch (Exception ex)
@@ -254,11 +254,11 @@ public static class MapLoader
         try
         {
             var currentScene = SceneManager.GetActiveScene();
-            Info("scene_reloading", currentScene.name);
+            MoreLogs("scene_reloading", currentScene.name);
 
             SceneManager.LoadScene(currentScene.buildIndex);
 
-            Info("scene_reloaded");
+            MoreLogs("scene_reloaded");
         }
         catch (Exception ex)
         {
@@ -315,6 +315,12 @@ public static class MapLoader
     {
         var message = ModLocale.Log($"{LocaleKeyPre}{key}", args);
         Log.Info(message, Logger);
+    }
+    
+    private static void MoreLogs(string key, params object[] args)
+    {
+        if (Configs.MoreLogs)
+            Info(key, args);
     }
 
     private static void Error(string key, params object[] args)

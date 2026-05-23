@@ -8,7 +8,6 @@ namespace CustomFungamePack;
 
 [BepInPlugin(Guid, Name, Version)]
 [BepInDependency("blackmoss.mosslib")]
-[HarmonyBefore("blackmoss.mosslib")]
 public class Plugin : BaseUnityPlugin
 {
     public const string Guid = "blackmoss.customfungamepack";

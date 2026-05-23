@@ -1,6 +1,4 @@
-﻿using MossLib.Tool;
-
-namespace CustomFungamePack;
+﻿namespace CustomFungamePack;
 
 public static class Configs
 {

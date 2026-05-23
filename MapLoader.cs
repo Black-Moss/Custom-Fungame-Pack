@@ -60,7 +60,7 @@ public static class MapLoader
     private static void LogFeatureInfo(Fungame fungame)
     {
         var feature = fungame.Feature;
-        
+
         if (feature == null)
         {
             Warning("no_features_enabled");
@@ -110,7 +110,7 @@ public static class MapLoader
             Warning("no_features_enabled");
         }
     }
-    
+
     private static void ParseAndApplyStringMap(Fungame fungame)
     {
         var mapData = fungame.MapData;
@@ -347,6 +347,7 @@ public static class MapLoader
             return;
         }
 
+        Log.Divider();
         LogConsole("list.header", fungames.Count);
 
         for (int i = 0; i < fungames.Count; i++)

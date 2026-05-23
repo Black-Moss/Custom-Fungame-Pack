@@ -23,6 +23,13 @@
         "spawn": "出生点: {0}"
       },
       "spawn": "传送回出生点{0}中...",
+      "waypoint": {
+        "list_header": "可用路径点 ({0}):",
+        "list_item": "  {0}. {1} - 位置: {2}",
+        "teleport": "正在传送到路径点'{0}'，位置 {1}...",
+        "not_found": "未找到路径点: {0}",
+        "invalid_index": "无效的索引 {0}，请输入 1 到 {1} 之间的数字"
+      },
       "list": {
         "header": "已加载 {0} 个 Fungame:",
         "item": "{0}[{1}] {2} (ID: {3}, 版本: {4}, 作者: {5})",
@@ -135,7 +142,8 @@
     },
     "mod_command": {
       "empty_type": "未知的指令类型",
-      "world_not_loaded": "未加载世界"
+      "world_not_loaded": "未加载世界",
+      "no_waypoints": "当前 Fungame 未定义路径点"
     },
     "custom_structures_loader": {
       "loading": "正在加载自定义结构: {0}",

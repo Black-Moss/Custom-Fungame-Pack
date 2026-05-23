@@ -57,6 +57,11 @@ public class ModCommand : ModCommandBase
                     case "feature":
                         HandleFeature(args);
                         break;
+                    case "waypoint":
+                        if (CheckWorld()) return;
+                        CheckArg(args, 1);
+                        Waypoint(args.Length > 2 ? args[2] : null);
+                        break;
                     default:
                         Warning("empty_type");
                         break;
@@ -73,7 +78,8 @@ public class ModCommand : ModCommandBase
                         "spawn",
                         "select",
                         "list",
-                        "feature"
+                        "feature",
+                        "waypoint"
                     ]
                 }
             };
@@ -102,6 +108,101 @@ public class ModCommand : ModCommandBase
         {
             Plugin.Logger.LogError($"Failed to register custom commands: {ex.Message}\n{ex.StackTrace}");
         }
+    }
+    
+    private static void Waypoint(string waypointId)
+    {
+        if (CheckWorld()) return;
+
+        var fungame = FungameCheck.CurrentFungame;
+        if (fungame == null)
+        {
+            Error("no_waypoints");
+            return;
+        }
+
+        var waypoints = GetWaypoints(fungame);
+        if (waypoints == null || waypoints.Count == 0)
+        {
+            Error("no_waypoints");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(waypointId))
+        {
+            ListWaypoints(waypoints);
+            return;
+        }
+
+        if (int.TryParse(waypointId, out int index))
+        {
+            if (index < 1 || index > waypoints.Count)
+            {
+                ErrorFungame("waypoint.invalid_index", index, waypoints.Count);
+                return;
+            }
+
+            var waypoint = waypoints[index - 1];
+            if (waypoint == null)
+            {
+                ErrorFungame("waypoint.not_found", waypointId);
+                return;
+            }
+
+            InfoFungame("waypoint.teleport", waypoint.Id ?? $"waypoint_{index}", waypoint.Position);
+            Player.Tp(waypoint.Position);
+            return;
+        }
+
+        var namedWaypoint = waypoints.Find(wp => 
+            wp != null && wp.Id?.Equals(waypointId, StringComparison.OrdinalIgnoreCase) == true);
+
+        if (namedWaypoint == null)
+        {
+            ErrorFungame("waypoint.not_found", waypointId);
+            return;
+        }
+
+        InfoFungame("waypoint.teleport", namedWaypoint.Id, namedWaypoint.Position);
+        Player.Tp(namedWaypoint.Position);
+    }
+    
+    private static List<Waypoint> GetWaypoints(Fungame fungame)
+    {
+        if (fungame.Waypoints is { Count: > 0 })
+        {
+            return fungame.Waypoints;
+        }
+
+        if (fungame.Waypoint != null)
+        {
+            return [fungame.Waypoint];
+        }
+
+        return [];
+    }
+
+    private static void ListWaypoints(List<Waypoint> waypoints)
+    {
+        if (waypoints == null || waypoints.Count == 0)
+        {
+            Error("no_waypoints");
+            return;
+        }
+
+        Log.Divider();
+        InfoFungame("waypoint.list_header", waypoints.Count);
+
+        for (int i = 0; i < waypoints.Count; i++)
+        {
+            var wp = waypoints[i];
+            if (wp != null)
+            {
+                InfoFungame("waypoint.list_item", i + 1, wp.Id ?? $"waypoint_{i + 1}", wp.Position);
+            }
+        }
+
+        Log.Divider();
     }
 
     private static void HandleFeature(string[] args)

@@ -18,6 +18,8 @@ public class Fungame
     public string Description { get; set; }
     public Feature Feature { get; set; } = new();
     public CommandData CommandData { get; set; }
+    public Waypoint Waypoint { get; set; }
+    [JsonProperty("waypoints")] public List<Waypoint> Waypoints { get; set; } = [];
     public float[] Spawn { get; set; } = [0, 0];
     [JsonProperty("map_data")] public MapData MapData { get; set; }
     [JsonProperty("custom_structures")] public string CustomStructures;
@@ -68,4 +70,13 @@ public class CommandData
     [JsonProperty("once_commands")] public List<string> OnceCommands;
     [JsonProperty("loop_commands")] public List<string> LoopCommands;
     [JsonProperty("loop_interval")] public float LoopInterval;
+}
+
+[UsedImplicitly]
+public class Waypoint
+{
+    public string Id { get; set; }
+    public Vector2 Position => new(X, Y);
+    public float X { get; set; }
+    public float Y { get; set; }
 }

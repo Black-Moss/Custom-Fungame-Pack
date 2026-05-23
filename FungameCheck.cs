@@ -62,18 +62,27 @@ public static class FungameCheck
             Author = ["Black_Moss"],
             Description = "a map template",
             Spawn = [3, 0],
-            CommandData = new CommandData
-            {
-                OnceCommands =
-                [
-                    "alert true Start!"
-                ],
-                LoopCommands =
-                [
-                    "alert false 10s!"
-                ],
-                LoopInterval = 0
-            },
+            Waypoints =
+            [
+                new()
+                {
+                    Id = "default",
+                    X = 0,
+                    Y = 0
+                }
+            ],
+            // CommandData = new CommandData
+            // {
+            //     OnceCommands =
+            //     [
+            //         "alert true Start!"
+            //     ],
+            //     LoopCommands =
+            //     [
+            //         "alert false 10s!"
+            //     ],
+            //     LoopInterval = 0
+            // },
             MapData = new MapData
             {
                 Map =

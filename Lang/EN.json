@@ -23,6 +23,13 @@
         "spawn": "Spawn point: {0}"
       },
       "spawn": "Teleporting back to the spawn point {0} now...",
+      "waypoint": {
+        "list_header": "Available waypoints ({0}):",
+        "list_item": "  {0}. {1} - Position: {2}",
+        "teleport": "Teleporting to waypoint '{0}' at position {1}...",
+        "not_found": "Waypoint not found: {0}",
+        "invalid_index": "Invalid index {0}, please enter a number between 1 and {1}"
+      },
       "list": {
         "header": "Loaded {0} Fungame(s):",
         "item": "{0}[{1}] {2} (ID: {3}, Version: {4}, Authors: {5})",
@@ -138,7 +145,8 @@
     },
     "mod_command": {
       "empty_type": "Unknown command type",
-      "world_not_loaded": "World not loaded"
+      "world_not_loaded": "World not loaded",
+      "no_waypoints": "No waypoints defined in current Fungame"
     },
     "custom_structures_loader": {
       "loading": "Loading custom structure: {0}",

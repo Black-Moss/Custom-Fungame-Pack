@@ -31,7 +31,7 @@ public static class WorldGenerationPatch
             if (fungame.MapData != null)
             {
                 WorldGeneration.biomeOverride = fungame.MapData.Type;
-                Log.Info($"Set scene type to: {fungame.MapData.Type}", Logger);
+                MoreLogs("scene_type_set", fungame.MapData.Type);
             }
             else
             {
@@ -54,7 +54,7 @@ public static class WorldGenerationPatch
                 if (fungame.MapData != null)
                 {
                     WorldGeneration.biomeOverride = fungame.MapData.Type;
-                    Log.Warning($"Set scene type to: {fungame.MapData.Type}", Logger);
+                    MoreLogs("scene_type_set", fungame.MapData.Type);
                 }
                 else
                 {

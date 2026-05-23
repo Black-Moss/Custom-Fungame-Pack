@@ -11,7 +11,7 @@ namespace CustomFungamePack;
 
 public static class FungameCheck
 {
-    private static ManualLogSource _logger;
+    // private static ManualLogSource // _logger;
     private const string LocaleKeyPre = "fungame_check.";
     private static readonly string FungamesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Fungames");
     public static readonly List<string> ValidDirectories = [];
@@ -22,7 +22,7 @@ public static class FungameCheck
 
     public static void Initialize()
     {
-        _logger = Plugin.Logger;
+        // // _logger = Plugin.Logger;
         LoadFungameDirectories();
     }
 
@@ -30,7 +30,7 @@ public static class FungameCheck
     {
         var directories = Directory.GetDirectories(FungamesPath);
 
-        _logger.LogInfo($"Read {directories.Length} Fungame folders");
+        // // _logger.LogInfo($"Read {directories.Length} Fungame folders");
 
         ValidDirectories.Clear();
         CheckFailDirectories.Clear();
@@ -47,8 +47,7 @@ public static class FungameCheck
 
             if (missingFiles.Count > 0)
             {
-                Warning(
-                    $"{Path.GetFileName(fungamesDirectory)} Missing files: {string.Join(", ", missingFiles)}");
+                // Warning($"{Path.GetFileName(fungamesDirectory)} Missing files: {string.Join(", ", missingFiles)}");
                 continue;
             }
 
@@ -82,21 +81,21 @@ public static class FungameCheck
         });
 
         if (ValidDirectories.Count == 0) return;
-        _logger.LogInfo($"Valid directories: {ValidDirectories.Count}, loading...");
+        // _logger.LogInfo($"Valid directories: {ValidDirectories.Count}, loading...");
 
         var directoriesToValidate = ValidDirectories.ToList();
         foreach (var fungame in directoriesToValidate.Where(fungame =>
                      !ValidateAndLoadFungame(Path.Combine(fungame, "fungame.json"))))
         {
-            Warning($"{Path.GetFileName(fungame)} Validation failed!");
+            // Warning($"{Path.GetFileName(fungame)} Validation failed!");
             CheckFailDirectories.Add(fungame);
         }
 
         if (CheckFailDirectories.Count == 0) return;
-        _logger.LogInfo($"Directory validation failed: {CheckFailDirectories.Count}:");
+        // _logger.LogInfo($"Directory validation failed: {CheckFailDirectories.Count}:");
         foreach (var failDirectory in CheckFailDirectories)
         {
-            _logger.LogInfo($"- {Path.GetFileName(failDirectory)}");
+            // _logger.LogInfo($"- {Path.GetFileName(failDirectory)}");
             ValidDirectories.Remove(failDirectory);
         }
     }
@@ -112,7 +111,7 @@ public static class FungameCheck
         {
             if (!File.Exists(filePath))
             {
-                _logger.LogError($"Cannot find fungame.json file: {filePath}");
+                // _logger.LogError($"Cannot find fungame.json file: {filePath}");
                 return false;
             }
 
@@ -191,10 +190,10 @@ public static class FungameCheck
 
             if (errors.Count > 0)
             {
-                Warning($"fungame.json validation failed: {Path.GetFileName(filePath)}");
+                // Warning($"fungame.json validation failed: {Path.GetFileName(filePath)}");
                 foreach (var error in errors)
                 {
-                    Warning($"  - {error}");
+                    // Warning($"  - {error}");
                 }
 
                 return false;
@@ -202,10 +201,10 @@ public static class FungameCheck
 
             if (warnings.Count > 0)
             {
-                Warning($"fungame.json validation passed with defaults: {Path.GetFileName(filePath)}");
+                // Warning($"fungame.json validation passed with defaults: {Path.GetFileName(filePath)}");
                 foreach (var warning in warnings)
                 {
-                    Warning($"  - {warning}");
+                    // Warning($"  - {warning}");
                 }
             }
 
@@ -223,7 +222,7 @@ public static class FungameCheck
             {
                 if (!ValidateMapDataInObject(fungame.MapData))
                 {
-                    Warning($"fungame.json validation failed: {Path.GetFileName(filePath)}");
+                    // Warning($"fungame.json validation failed: {Path.GetFileName(filePath)}");
                     return false;
                 }
             }
@@ -234,13 +233,13 @@ public static class FungameCheck
             var id = fungame.Id;
             var version = fungame.Version;
 
-            _logger.LogInfo(hasMap
-                ? $"Successfully loaded Fungame: {name} (ID: {id}, Version: {version}, includes map data)"
-                : $"Successfully loaded Fungame: {name} (ID: {id}, Version: {version})");
+            // _logger.LogInfo(hasMap
+                // ? $"Successfully loaded Fungame: {name} (ID: {id}, Version: {version}, includes map data)"
+                // : $"Successfully loaded Fungame: {name} (ID: {id}, Version: {version})");
 
             if (warnings.Count > 0)
             {
-                _logger.LogInfo("Please check and fix the above warnings");
+                // _logger.LogInfo("Please check and fix the above warnings");
             }
 
             return true;
@@ -248,7 +247,7 @@ public static class FungameCheck
         catch (Exception ex) when (ex is JsonException or UnauthorizedAccessException or IOException
                                        or ArgumentException)
         {
-            _logger.LogError($"fungame.json processing failed: {Path.GetFileName(filePath)} ({ex.Message})");
+            // _logger.LogError($"fungame.json processing failed: {Path.GetFileName(filePath)} ({ex.Message})");
             return false;
         }
     }
@@ -372,20 +371,20 @@ public static class FungameCheck
     {
         if (mapData.Map == null || mapData.Map.Length == 0)
         {
-            Warning(Validation("no_data", Locale("common.map"), "string map"));
+            // Warning(Validation("no_data", Locale("common.map"), "string map"));
             return false;
         }
 
         if (mapData.Key == null || mapData.Key.Count == 0)
         {
-            Warning(Validation("map_missing_field", "key"));
+            // Warning(Validation("map_missing_field", "key"));
             return false;
         }
 
         var maxColCount = mapData.Map.Max(row => row?.Length ?? 0);
 
         if (maxColCount != 0) return true;
-        Warning(Validation("row_data_empty", Locale("common.map")));
+        // Warning(Validation("row_data_empty", Locale("common.map")));
         return false;
     }
 
@@ -495,8 +494,8 @@ public static class FungameCheck
         return ModLocale.Log($"validation.{key}", args);
     }
 
-    private static void Warning(string key)
-    {
-        Log.Warning(key, _logger);
-    }
+    // private static void // Warning(string key)
+    // {
+    //     Log.// Warning(key, _logger);
+    // }
 }

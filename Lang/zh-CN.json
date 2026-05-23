@@ -117,7 +117,8 @@
       "forgiving_level_mode": "仁慈关卡模式"
     },
     "mod_command": {
-      "empty_type": "未知的指令类型"
+      "empty_type": "未知的指令类型",
+      "world_not_loaded": "未加载世界"
     },
     "custom_structures_loader": {
       "loading": "正在加载自定义结构: {0}",

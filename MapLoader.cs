@@ -228,26 +228,26 @@ public static class MapLoader
         }
     }
 
-    public static void ReloadMap(Fungame fungame)
-    {
-        if (fungame == null)
-        {
-            Error("no_current_fungame");
-            return;
-        }
-
-        World.CheckForWorld();
-        Log.Divider();
-        try
-        {
-            MoreLogs("restarting_scene");
-            RestartScene();
-        }
-        catch (Exception ex)
-        {
-            Error("reload_failed", ex.Message);
-        }
-    }
+    // public static void ReloadMap(Fungame fungame)
+    // {
+    //     if (fungame == null)
+    //     {
+    //         Error("no_current_fungame");
+    //         return;
+    //     }
+    //
+    //     World.CheckForWorld();
+    //     Log.Divider();
+    //     try
+    //     {
+    //         MoreLogs("restarting_scene");
+    //         RestartScene();
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Error("reload_failed", ex.Message);
+    //     }
+    // }
 
     private static void RestartScene()
     {
@@ -281,30 +281,30 @@ public static class MapLoader
         Log.NewLine();
     }
 
-    public static void LogFungameList()
-    {
-        var fungames = FungameCheck.Fungames;
-
-        if (fungames == null || fungames.Count == 0)
-        {
-            LogConsole("list.empty");
-            return;
-        }
-
-        LogConsole("list.header", fungames.Count);
-
-        for (int i = 0; i < fungames.Count; i++)
-        {
-            var fungame = fungames[i];
-            var isCurrent = fungame.Id == FungameCheck.CurrentFungame?.Id;
-            var marker = isCurrent ? "->" : "  ";
-
-            LogConsole("list.item", marker, i + 1, fungame.Name, fungame.Id, fungame.Version, fungame.Authors);
-        }
-
-        Log.NewLine();
-    }
-
+    // public static void LogFungameList()
+    // {
+    //     var fungames = FungameCheck.Fungames;
+    //
+    //     if (fungames == null || fungames.Count == 0)
+    //     {
+    //         LogConsole("list.empty");
+    //         return;
+    //     }
+    //
+    //     LogConsole("list.header", fungames.Count);
+    //
+    //     for (int i = 0; i < fungames.Count; i++)
+    //     {
+    //         var fungame = fungames[i];
+    //         var isCurrent = fungame.Id == FungameCheck.CurrentFungame?.Id;
+    //         var marker = isCurrent ? "->" : "  ";
+    //
+    //         LogConsole("list.item", marker, i + 1, fungame.Name, fungame.Id, fungame.Version, fungame.Authors);
+    //     }
+    //
+    //     Log.NewLine();
+    // }
+    
     private static void LogConsole(string key, params object[] args)
     {
         var message = ModLocale.GetFormat($"command.fungame.{key}", args);

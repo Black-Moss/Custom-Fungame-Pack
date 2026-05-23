@@ -4,6 +4,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using MossLib.Base;
 using MossLib.Tool;
+using UnityEngine;
 
 namespace CustomFungamePack;
 
@@ -21,7 +22,6 @@ public class ModCommand : ModCommandBase
         {
             void Action(string[] args)
             {
-                CheckArg(args, 1);
                 switch (args[1])
                 {
                     case "reload":
@@ -54,6 +54,9 @@ public class ModCommand : ModCommandBase
                         }
 
                         break;
+                    case "feature":
+                        HandleFeature(args);
+                        break;
                     default:
                         Warning("empty_type");
                         break;
@@ -69,25 +72,27 @@ public class ModCommand : ModCommandBase
                         "info",
                         "spawn",
                         "select",
-                        "list"
+                        "list",
+                        "feature"
                     ]
                 }
             };
             (string, string)[] valueTupleArray =
             [
-                ("string", Command("fungame.string")),
-                ("string", Command("fungame.parameter"))
+                ("string", Fungame("string")),
+                ("string", Fungame("parameter")),
+                ("string", Fungame("parameter"))
             ];
             ConsoleScript.Commands.Add(new Command(
                 "fungame",
-                Command("fungame.description"),
+                Fungame("description"),
                 Action,
                 argAutofill2,
                 valueTupleArray)
             );
             ConsoleScript.Commands.Add(new Command(
                 "fg",
-                Command("fungame.description"),
+                Fungame("description"),
                 Action,
                 argAutofill2,
                 valueTupleArray)
@@ -97,6 +102,168 @@ public class ModCommand : ModCommandBase
         {
             Plugin.Logger.LogError($"Failed to register custom commands: {ex.Message}\n{ex.StackTrace}");
         }
+    }
+
+    private static void HandleFeature(string[] args)
+    {
+        if (CheckWorld()) return;
+
+        var fungame = FungameCheck.CurrentFungame;
+        if (fungame?.Feature == null)
+        {
+            Error("no_fungame");
+            return;
+        }
+
+        CheckArg(args, 2);
+
+        if (args.Length < 3)
+        {
+            Command("feature.no_subcommand");
+            return;
+        }
+
+        var subCommand = args[2].ToLower();
+
+        switch (subCommand)
+        {
+            case "list":
+                ListFeatures(fungame.Feature);
+                break;
+            case "get":
+                if (args.Length < 4)
+                {
+                    Fungame("feature.get_no_name");
+                    return;
+                }
+
+                GetFeature(fungame.Feature, args[3]);
+                break;
+            case "set":
+                if (args.Length < 5)
+                {
+                    Fungame("feature.set_missing_params");
+                    return;
+                }
+
+                SetFeature(fungame.Feature, args[3], args[4]);
+                break;
+            default:
+                Fungame("feature.unknown_subcommand", subCommand);
+                break;
+        }
+    }
+
+    private static void ListFeatures(Feature feature)
+    {
+        Log.Divider();
+        InfoFungame("feature.list_header");
+
+        var fields =
+            typeof(Feature).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+        foreach (var field in fields)
+        {
+            var value = field.GetValue(feature);
+            var displayName = GetFeatureDisplayName(field.Name);
+            InfoFungame("feature.item", $"{displayName} ({field.Name})", value);
+        }
+
+        Log.Divider();
+    }
+
+    private static void GetFeature(Feature feature, string featureName)
+    {
+        var field = FindFeatureField(featureName);
+
+        if (field == null)
+        {
+            ErrorFungame("feature.not_found", featureName);
+            return;
+        }
+
+        var value = field.GetValue(feature);
+        var displayName = GetFeatureDisplayName(field.Name);
+        InfoFungame("feature.get_success", $"{displayName} ({field.Name})", value);
+    }
+
+    private static void SetFeature(Feature feature, string featureName, string valueStr)
+    {
+        var field = FindFeatureField(featureName);
+
+        if (field == null)
+        {
+            ErrorFungame("feature.not_found", featureName);
+            return;
+        }
+
+        try
+        {
+            var convertedValue = Convert.ChangeType(valueStr, field.FieldType);
+
+            if (field.FieldType == typeof(float))
+            {
+                if (field.Name.ToLower() == "gravity")
+                {
+                    Physics2D.gravity = new Vector2(0, (float)convertedValue);
+                }
+            }
+
+            field.SetValue(feature, convertedValue);
+            var displayName = GetFeatureDisplayName(field.Name);
+            InfoFungame("feature.set_success", $"{displayName} ({field.Name})", convertedValue);
+        }
+        catch (Exception)
+        {
+            ErrorFungame("feature.invalid_value", featureName, valueStr);
+        }
+    }
+
+    private static System.Reflection.FieldInfo FindFeatureField(string featureName)
+    {
+        var fields =
+            typeof(Feature).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+        foreach (var field in fields)
+        {
+            if (field.Name.Equals(featureName, StringComparison.OrdinalIgnoreCase))
+            {
+                return field;
+            }
+        }
+
+        return null;
+    }
+
+    private static string GetFeatureDisplayName(string fieldName)
+    {
+        var localeKey = $"feature.{ConvertToSnakeCase(fieldName)}";
+        var localized = ModLocale.GetFormat(localeKey);
+
+        return localized.StartsWith("feature.") ? fieldName : localized;
+    }
+
+    private static string ConvertToSnakeCase(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+
+        var result = new System.Text.StringBuilder();
+        result.Append(char.ToLower(input[0]));
+
+        for (int i = 1; i < input.Length; i++)
+        {
+            if (char.IsUpper(input[i]))
+            {
+                result.Append('_');
+                result.Append(char.ToLower(input[i]));
+            }
+            else
+            {
+                result.Append(input[i]);
+            }
+        }
+
+        return result.ToString();
     }
 
     private static bool CheckWorld()
@@ -122,13 +289,13 @@ public class ModCommand : ModCommandBase
     {
         if (string.IsNullOrWhiteSpace(key))
         {
-            Command("fungame.select.no_key");
+            Fungame("select.no_key");
             return;
         }
 
         if (FungameCheck.Fungames == null || FungameCheck.Fungames.Count == 0)
         {
-            Command("fungame.list.empty");
+            Fungame("list.empty");
             return;
         }
 
@@ -138,7 +305,7 @@ public class ModCommand : ModCommandBase
         {
             if (index < 1 || index > FungameCheck.Fungames.Count)
             {
-                Command("fungame.select.invalid_index", index, FungameCheck.Fungames.Count);
+                Fungame("select.invalid_index", index, FungameCheck.Fungames.Count);
                 return;
             }
 
@@ -154,13 +321,13 @@ public class ModCommand : ModCommandBase
 
         if (fungame == null)
         {
-            Command("fungame.select.not_found", key);
+            Fungame("select.not_found", key);
             return;
         }
 
         WorldGenerationPatch.CurrentFungame = fungame;
 
-        Command("fungame.select.success", fungame.Name, fungame.Id);
+        Fungame("select.success", fungame.Name, fungame.Id);
 
         if (HasWorldLoaded())
         {
@@ -192,6 +359,23 @@ public class ModCommand : ModCommandBase
     private static string Command(string key, params object[] args)
     {
         return Locale($"command.{key}", args);
+    }
+
+    private static string Fungame(string key, params object[] args)
+    {
+        return Command($"fungame.{key}", args);
+    }
+
+    private static void InfoFungame(string key, params object[] args)
+    {
+        var message = Fungame(key, args);
+        Log.Info(message, Logger);
+    }
+
+    private static void ErrorFungame(string key, params object[] args)
+    {
+        var message = Fungame(key, args);
+        Log.Error(message, Logger);
     }
 
     private static void LogConsole(string key, params object[] args)

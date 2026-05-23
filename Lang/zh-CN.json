@@ -33,6 +33,19 @@
         "not_found": "未找到 Fungame: {0}",
         "success": "已选择 {0} (ID: {1})",
         "invalid_index": "无效的索引 {0}，请输入 1 到 {1} 之间的数字"
+      },
+      "feature": {
+        "no_subcommand": "请指定特性子命令：list、get 或 set",
+        "unknown_subcommand": "未知的特性子命令：{0}",
+        "get_no_name": "请指定要获取的特性名称",
+        "set_missing_params": "请指定特性名称和值来设置",
+        "list_header": "当前特性设置：",
+        "item": "  {0}: {1}",
+        "get_success": "特性 '{0}' = {1}",
+        "set_success": "特性 '{0}' 已设置为 {1}",
+        "not_found": "未找到特性：{0}",
+        "invalid_value": "{0} 的值无效：{1}",
+        "invalid_bool": "{0} 的布尔值无效：{1}（使用 true/false）"
       }
     }
   },

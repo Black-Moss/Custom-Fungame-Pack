@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -20,14 +21,19 @@ public class Fungame
     public float[] Spawn { get; set; } = [0, 0];
     [JsonProperty("map_data")] public MapData MapData { get; set; }
     [JsonProperty("custom_structures")] public string CustomStructures;
+    [JsonProperty("skip_terrain")] public bool SkipTerrain { get; set; } = true;
+    [JsonProperty("skip_structures")] public bool SkipStructures { get; set; } = true;
+    [JsonProperty("skip_background")] public bool SkipBackground { get; set; } = true;
 
     public string Authors => Author is { Count: > 0 }
         ? string.Join(", ", Author)
         : "Unknown";
 
     public string Features => Feature != null
-        ? $"Fullbright={Feature.Fullbright}, ForgivingLevel={Feature.ForgivingLevel}, Gravity={Feature.Gravity}, SkipTerrain={Feature.SkipTerrain}, SkipStructures={Feature.SkipStructures}, SkipBackground={Feature.SkipBackground}"
+        ? string.Join(", ", typeof(Feature).GetProperties().Select(prop =>
+            $"{prop.Name}={prop.GetValue(Feature)}"))
         : "None";
+
 
     public Vector2 SpawnPosition => new(
         Spawn is { Length: >= 2 }
@@ -51,10 +57,7 @@ public class MapData
 [UsedImplicitly]
 public class Feature
 {
-    public bool Fullbright = true;
-    public bool ForgivingLevel = false;
-    public float Gravity = Physics2D.gravity.y;
-    public bool SkipTerrain = true;
-    public bool SkipStructures = true;
-    public bool SkipBackground = true;
+    public bool Fullbright { get; set; } = true;
+    public bool ForgivingLevel { get; set; } = false;
+    public float Gravity { get; set; } = Physics2D.gravity.y;
 }

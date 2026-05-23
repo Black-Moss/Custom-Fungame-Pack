@@ -44,7 +44,7 @@ public static class MapLoader
                 return;
             }
 
-            LogFeatureInfo(fungame.Feature);
+            LogFeatureInfo(fungame);
 
             ParseAndApplyStringMap(fungame);
 
@@ -57,8 +57,10 @@ public static class MapLoader
         }
     }
 
-    private static void LogFeatureInfo(Feature feature)
+    private static void LogFeatureInfo(Fungame fungame)
     {
+        var feature = fungame.Feature;
+        
         if (feature == null)
         {
             Warning("no_features_enabled");
@@ -85,19 +87,19 @@ public static class MapLoader
             hasAnyFeature = true;
         }
 
-        if (feature.SkipTerrain)
+        if (fungame.SkipTerrain)
         {
             Info("skip_generation", ModLocale.Log("common.terrain"));
             hasAnyFeature = true;
         }
 
-        if (feature.SkipStructures)
+        if (fungame.SkipStructures)
         {
             Info("skip_generation", ModLocale.Log("common.structure"));
             hasAnyFeature = true;
         }
 
-        if (feature.SkipBackground)
+        if (fungame.SkipBackground)
         {
             Info("skip_generation", ModLocale.Log("common.background"));
             hasAnyFeature = true;
@@ -108,7 +110,7 @@ public static class MapLoader
             Warning("no_features_enabled");
         }
     }
-
+    
     private static void ParseAndApplyStringMap(Fungame fungame)
     {
         var mapData = fungame.MapData;

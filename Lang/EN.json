@@ -33,6 +33,19 @@
         "not_found": "Fungame not found: {0}",
         "success": "Selected {0} (ID: {1})",
         "invalid_index": "Invalid index {0}, please enter a number between 1 and {1}"
+      },
+      "feature": {
+        "no_subcommand": "Please specify a feature subcommand: list, get, or set",
+        "unknown_subcommand": "Unknown feature subcommand: {0}",
+        "get_no_name": "Please specify a feature name to get",
+        "set_missing_params": "Please specify feature name and value to set",
+        "list_header": "Current feature settings:",
+        "item": "  {0} ({1}): {1}",
+        "get_success": "Feature '{0}' = {1}",
+        "set_success": "Feature '{0}' set to {1}",
+        "not_found": "Feature not found: {0}",
+        "invalid_value": "Invalid value for {0}: {1}",
+        "invalid_bool": "Invalid boolean value for {0}: {1} (use true/false)"
       }
     }
   },

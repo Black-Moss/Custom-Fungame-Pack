@@ -95,6 +95,7 @@ public static class WorldGenerationPatch
         }
 
         Physics2D.gravity = new Vector2(0, features.Gravity);
+        Console.ConsoleScript.fullBright = CurrentFungame.Feature.Fullbright;
     }
 
     private static void SetDefaultSceneType(WorldGeneration __instance)
@@ -106,7 +107,7 @@ public static class WorldGenerationPatch
     [HarmonyPrefix]
     public static bool SkipWorldCreateBackground()
     {
-        if (!CurrentFungame.Feature.SkipBackground) return true;
+        if (!CurrentFungame.SkipBackground) return true;
         MoreLogs("skip_generation", ModLocale.Log("common.background"));
         return false;
     }
@@ -115,7 +116,7 @@ public static class WorldGenerationPatch
     [HarmonyPrefix]
     public static bool SkipWorldGenerateStructures()
     {
-        if (!CurrentFungame.Feature.SkipStructures) return true;
+        if (!CurrentFungame.SkipStructures) return true;
         MoreLogs("skip_generation", ModLocale.Log("common.structure"));
         return false;
     }
@@ -124,7 +125,7 @@ public static class WorldGenerationPatch
     [HarmonyPrefix]
     public static bool SkipWorldGenerateTerrain()
     {
-        if (!CurrentFungame.Feature.SkipTerrain) return true;
+        if (!CurrentFungame.SkipTerrain) return true;
         MoreLogs("skip_generation", ModLocale.Log("common.terrain"));
         return false;
     }
@@ -177,14 +178,6 @@ public static class WorldGenerationPatch
         }
     }
 
-    [HarmonyPatch(typeof(ConsoleScript), "Update")]
-    [HarmonyPostfix]
-    public static void ConsoleScriptUpdate(ConsoleScript __instance)
-    {
-        if (CurrentFungame?.Feature == null) return;
-        if (CurrentFungame.Feature.Fullbright) __instance.fullBright = true;
-    }
-
     private static void SpawnMap(Fungame fungame)
     {
         MoreLogs("loading_fungame_map", fungame.Name);
@@ -216,7 +209,7 @@ public static class WorldGenerationPatch
             Console.RunCommand(command);
         }
     }
-        
+
     private static void MoreLogs(string key, params object[] args)
     {
         if (Configs.MoreLogs)

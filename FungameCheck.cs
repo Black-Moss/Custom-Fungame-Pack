@@ -121,11 +121,6 @@ public static class FungameCheck
         }
     }
 
-    public static Fungame GetRunningFungame()
-    {
-        return CurrentFungame;
-    }
-
     private static bool ValidateAndLoadFungame(string filePath)
     {
         try

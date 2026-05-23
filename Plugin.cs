@@ -17,21 +17,19 @@ public class Plugin : BaseUnityPlugin
 
     internal new static ManualLogSource Logger;
     private readonly Harmony _harmony = new(Guid);
-    internal static Plugin Instance { get; private set; }
     public static ConfigEntry<bool> MoreLogs;
 
     public void Awake()
     {
-        Instance = this;
         Logger = base.Logger;
 
         ModLocale.Initialize(Logger);
+        LocaleGenerator.SetLogger(Logger);
         LocaleGenerator.Register(new EnLangGenerator(), Logger);
         LocaleGenerator.Register(new ZhCnLangGenerator(), Logger);
         LocaleGenerator.GenerateAll();
-        
         _harmony.PatchAll();
-        FungameCheck.Initialize();
+        // FungameCheck.Initialize();
 
         MoreLogs = Config.Bind(
             "General",

@@ -139,7 +139,7 @@ public static class WorldGenerationPatch
     {
         WorldGeneration.loadingText.text = Locale("initializing_world");
 
-        var fungame = FungameCheck.GetRunningFungame();
+        var fungame = FungameCheck.CurrentFungame;
 
         if (fungame is { MapData: not null })
         {

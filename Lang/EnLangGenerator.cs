@@ -15,6 +15,8 @@ namespace CustomFungamePack.Lang
             Add("feature.skip_terrain", "Skip Terrain");
             Add("feature.skip_structures", "Skip Structures");
             Add("feature.skip_background", "Skip Background");
+            Add("feature.jump_limit", "Jump Limit");
+            Add("feature.climb_limit", "Climb Limit");
 
             // Command - Fungame
             Add("command.fungame.description", "Fungame related commands");
@@ -154,7 +156,6 @@ namespace CustomFungamePack.Lang
             Add("log.common.background", "Background");
             Add("log.common.startup_command", "Startup commands");
             Add("log.common.loop_command", "Loop command");
-            Add("log.common.forgiving_level_mode", "Forgiving level mode");
             
             // Log - Mod Command
             Add("log.mod_command.empty_type", "Unknown command type");

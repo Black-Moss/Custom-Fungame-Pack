@@ -16,6 +16,8 @@ namespace CustomFungamePack.Lang
             Add("feature.skip_structures", "跳过结构");
             Add("feature.skip_background", "跳过背景");
             Add("feature.skip_background", "跳过背景");
+            Add("feature.jump_limit", "跳跃极限");
+            Add("feature.climb_limit", "攀爬极限");
 
             // Command - Fungame
             Add("command.fungame.description", "Fungame 的相关指令");
@@ -155,7 +157,6 @@ namespace CustomFungamePack.Lang
             Add("log.common.background", "背景");
             Add("log.common.startup_command", "启动命令");
             Add("log.common.loop_command", "循环命令");
-            Add("log.common.forgiving_level_mode", "仁慈关卡模式");
             
             // Log - Mod Command
             Add("log.mod_command.empty_type", "未知的指令类型");

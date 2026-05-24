@@ -62,7 +62,8 @@ public class Feature
     public bool Fullbright { get; set; } = true;
     public bool ForgivingLevel { get; set; }
     public float Gravity { get; set; } = Physics2D.gravity.y;
-    public int JumpLimit { get; set; } = 3;
+    public int JumpLimit { get; set; } = 0;
+    public int ClimbLimit { get; set; } = 0;
 }
 
 [UsedImplicitly]

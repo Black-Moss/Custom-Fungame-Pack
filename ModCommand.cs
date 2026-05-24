@@ -174,11 +174,6 @@ public class ModCommand : ModCommandBase
     private static void HandleSave(string[] args)
     {
         var fungame = FungameCheck.CurrentFungame;
-        if (fungame == null)
-        {
-            Error("no_fungame");
-            return;
-        }
 
         // 解析可选的 targetName 参数
         string targetPath = null;
@@ -188,7 +183,7 @@ public class ModCommand : ModCommandBase
             // fg save <targetName>  — 全量保存到目标 Fungame
             if (!args[2].Contains(","))
             {
-                targetPath = FindTargetFungamePath(args[2]);
+                targetPath = ResolveTargetPath(args[2]);
                 if (targetPath == null)
                 {
                     ErrorFungame("save.target_not_found", args[2]);
@@ -205,12 +200,24 @@ public class ModCommand : ModCommandBase
         else if (args.Length == 5)
         {
             // fg save <x1,y1> <x2,y2> <targetName>  — 区域保存到目标 Fungame
-            targetPath = FindTargetFungamePath(args[4]);
+            targetPath = ResolveTargetPath(args[4]);
             if (targetPath == null)
             {
                 ErrorFungame("save.target_not_found", args[4]);
                 return;
             }
+        }
+
+        // 没有选中 Fungame 但有目标路径时，加载目标目录的 fungame.json 或创建默认实例
+        if (fungame == null)
+        {
+            if (targetPath == null)
+            {
+                Error("no_fungame");
+                return;
+            }
+
+            fungame = LoadOrCreateDefaultFungame(targetPath);
         }
 
         var directoryPath = targetPath ?? fungame.DirectoryPath;
@@ -257,19 +264,60 @@ public class ModCommand : ModCommandBase
     }
 
     /// <summary>
-    /// 通过文件夹名称查找目标 Fungame 的目录路径
+    /// 通过文件夹名称查找目标 Fungame 的目录路径。
+    /// 先在 ValidDirectories 中查找，若未找到则在 Fungames 根目录下搜索。
     /// </summary>
-    private static string FindTargetFungamePath(string targetName)
+    private static string ResolveTargetPath(string targetName)
     {
+        // 先在已验证的目录中查找
         foreach (var dir in FungameCheck.ValidDirectories)
         {
             var folderName = Path.GetFileName(dir);
             if (string.Equals(folderName, targetName, StringComparison.OrdinalIgnoreCase))
                 return dir;
         }
+
+        // 再在 Fungames 根目录下按文件夹名查找
+        var directPath = Path.Combine(FungameCheck.FungamesPath, targetName);
+        if (Directory.Exists(directPath))
+            return directPath;
+
         return null;
     }
-    
+
+    /// <summary>
+    /// 从目标目录加载 fungame.json，若不存在或加载失败则创建默认实例
+    /// </summary>
+    private static Fungame LoadOrCreateDefaultFungame(string targetPath)
+    {
+        var targetJsonPath = Path.Combine(targetPath, "fungame.json");
+        if (File.Exists(targetJsonPath))
+        {
+            try
+            {
+                var json = File.ReadAllText(targetJsonPath);
+                var loaded = JsonConvert.DeserializeObject<Fungame>(json);
+                if (loaded != null)
+                {
+                    loaded.DirectoryPath = targetPath;
+                    return loaded;
+                }
+            }
+            catch { }
+        }
+
+        var folderName = Path.GetFileName(targetPath);
+        return new Fungame
+        {
+            Name = folderName,
+            Id = folderName.ToLower(),
+            Version = "1.0.0",
+            Author = new List<string> { "Unknown" },
+            Description = $"Saved from area scan",
+            DirectoryPath = targetPath
+        };
+    }
+
     private static void SaveAreaAsMapData(Fungame fungame, string jsonPath, string startStr, string endStr)
     {
         if (!EnsureWorldLoaded()) return;

@@ -31,8 +31,8 @@ public static class WorldGenerationPatch
 
             if (fungame.MapData != null)
             {
-                WorldGeneration.biomeOverride = fungame.MapData.Type;
-                MoreLogs("scene_type_set", fungame.MapData.Type);
+                WorldGeneration.biomeOverride = fungame.Type;
+                MoreLogs("scene_type_set", fungame.Type);
             }
             else
             {
@@ -48,8 +48,8 @@ public static class WorldGenerationPatch
 
                 if (fungame.MapData != null)
                 {
-                    WorldGeneration.biomeOverride = fungame.MapData.Type;
-                    MoreLogs("scene_type_set", fungame.MapData.Type);
+                    WorldGeneration.biomeOverride = fungame.Type;
+                    MoreLogs("scene_type_set", fungame.Type);
                 }
                 else
                 {
@@ -87,10 +87,10 @@ public static class WorldGenerationPatch
         Physics2D.gravity = new Vector2(0, features.Gravity);
         if (CurrentFungame.Feature.Fullbright)
             Console.ConsoleScript.fullBright = CurrentFungame.Feature.Fullbright;
-        
+
         HandleLoopCommands();
     }
-    
+
     private static void SetDefaultSceneType(WorldGeneration __instance)
     {
         __instance.biomeOverride = WorldGeneration.OverrideSceneType.Debug;
@@ -130,7 +130,7 @@ public static class WorldGenerationPatch
         WorldGeneration.loadingText.text = Locale("initializing_world");
 
         var fungame = FungameCheck.CurrentFungame
-            ?? FungameCheck.Fungames.FirstOrDefault();
+                      ?? FungameCheck.Fungames.FirstOrDefault();
 
         if (fungame == null)
         {
@@ -143,8 +143,8 @@ public static class WorldGenerationPatch
         bool hasBuildModeSave = !string.IsNullOrEmpty(fungame.BuildModeSave);
 
         int contentTypeCount = (hasMapData ? 1 : 0)
-            + (hasCustomStructures ? 1 : 0)
-            + (hasBuildModeSave ? 1 : 0);
+                               + (hasCustomStructures ? 1 : 0)
+                               + (hasBuildModeSave ? 1 : 0);
 
         if (contentTypeCount > 1)
         {
@@ -201,7 +201,8 @@ public static class WorldGenerationPatch
     private static void ExecuteCommands(Fungame fungame)
     {
         var commands = fungame.CommandData;
-        if (commands == null || (commands.OnceCommands == null || commands.OnceCommands.Count == 0) && (commands.LoopCommands == null || commands.LoopCommands.Count == 0))
+        if (commands == null || (commands.OnceCommands == null || commands.OnceCommands.Count == 0) &&
+            (commands.LoopCommands == null || commands.LoopCommands.Count == 0))
         {
             MoreLogs("no_commands", ModLocale.Log("common.startup_command"));
             return;
@@ -223,23 +224,23 @@ public static class WorldGenerationPatch
     {
         var loopCommands = CurrentFungame?.CommandData?.LoopCommands;
         if (loopCommands == null || loopCommands.Count == 0) return;
-        
-        var interval = CurrentFungame.CommandData.LoopInterval > 0 
-            ? CurrentFungame.CommandData.LoopInterval 
+
+        var interval = CurrentFungame.CommandData.LoopInterval > 0
+            ? CurrentFungame.CommandData.LoopInterval
             : 10f;
-        
+
         _sLoopTimer += Time.deltaTime;
 
         if (!(_sLoopTimer >= interval)) return;
         _sLoopTimer = 0f;
-            
+
         foreach (var command in loopCommands)
         {
             MoreLogs("executing_loop_command", ModLocale.Log("common.loop_command"), command);
             Console.RunCommand(command);
         }
     }
-    
+
     private static void MoreLogs(string key, params object[] args)
     {
         if (Configs.MoreLogs)

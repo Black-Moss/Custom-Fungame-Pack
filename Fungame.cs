@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -18,12 +20,15 @@ public class Fungame
     public string Description { get; set; }
     public Feature Feature { get; set; } = new();
     public CommandData CommandData { get; set; }
-    public Waypoint Waypoint { get; set; }
-    public List<Waypoint> Waypoints { get; set; } = [];
+    public WaypointData WaypointData { get; set; }
+    public List<WaypointData> Waypoints { get; set; } = [];
+    public List<ItemData> Item { get; set; } = [];
     public float[] Spawn { get; set; } = [0, 0];
     public int X { get; set; } = 0;
     public int Y { get; set; } = 0;
-    public Vector2 MapPosition => new(X, Y);
+
+    public WorldGeneration.OverrideSceneType Type { get; set; } = WorldGeneration.OverrideSceneType.Debug;
+    [JsonIgnore] public Vector2 MapPosition => new(X, Y);
     [JsonProperty("map_data")] public MapData MapData { get; set; }
     [JsonProperty("custom_structures")] public string CustomStructures;
     [JsonProperty("build_mode_save")] public string BuildModeSave;
@@ -34,16 +39,19 @@ public class Fungame
 
     [JsonIgnore] public string DirectoryPath { get; set; }
 
-    [JsonIgnore] public string Authors => Author is { Count: > 0 }
+    [JsonIgnore]
+    public string Authors => Author is { Count: > 0 }
         ? string.Join(", ", Author)
         : "Unknown";
 
-    [JsonIgnore] public string Features => Feature != null
+    [JsonIgnore]
+    public string Features => Feature != null
         ? string.Join(", ", typeof(Feature).GetProperties().Select(prop =>
             $"{prop.Name}={prop.GetValue(Feature)}"))
         : "None";
 
-    [JsonIgnore] public Vector2 SpawnPosition => new(
+    [JsonIgnore]
+    public Vector2 SpawnPosition => new(
         Spawn is { Length: >= 2 }
             ? Spawn[0]
             : 0,
@@ -55,7 +63,6 @@ public class Fungame
 [UsedImplicitly]
 public class MapData
 {
-    public WorldGeneration.OverrideSceneType Type { get; set; } = WorldGeneration.OverrideSceneType.Debug;
     public string[] Map { get; set; } = [];
     public Dictionary<string, object> Key { get; set; } = new();
 }
@@ -79,10 +86,17 @@ public class CommandData
 }
 
 [UsedImplicitly]
-public class Waypoint
+public class WaypointData
 {
     public string Id { get; set; }
     public Vector2 Position => new(X, Y);
     public float X { get; set; }
     public float Y { get; set; }
+}
+
+[UsedImplicitly]
+public class ItemData
+{
+    public string Id { get; set; }
+    public string Slot { get; set; }
 }

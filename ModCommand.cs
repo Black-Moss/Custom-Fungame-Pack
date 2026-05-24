@@ -101,7 +101,7 @@ public class ModCommand : ModCommandBase
                 if (args.Length > 2)
                     Select(args[2]);
                 else
-                    MapLoader.LogFungameList();
+                    MapLoader.LogFungameList(); 
                 break;
             case "feature":
                 HandleFeature(args);
@@ -115,10 +115,6 @@ public class ModCommand : ModCommandBase
         }
     }
 
-    /// <summary>
-    /// Handles waypoint subcommands with the same structure as HandleFeature:
-    /// no subcommand → list, "list" → list, "get <id>" → teleport, "help" → help.
-    /// </summary>
     private static void HandleWaypoint(string[] args)
     {
         if (!EnsureWorldLoaded()) return;
@@ -132,7 +128,6 @@ public class ModCommand : ModCommandBase
 
         var waypoints = GetWaypoints(fungame);
 
-        // No subcommand → default to list
         if (args.Length < 3)
         {
             ListWaypoints(waypoints);
@@ -155,6 +150,7 @@ public class ModCommand : ModCommandBase
                     InfoFungame("waypoint.get_no_id");
                     return;
                 }
+
                 TeleportToWaypointById(waypoints, args[3]);
                 break;
             default:
@@ -163,10 +159,7 @@ public class ModCommand : ModCommandBase
         }
     }
 
-    /// <summary>
-    /// Resolves a waypoint by index or name and teleports the player.
-    /// </summary>
-    private static void TeleportToWaypointById(List<Waypoint> waypoints, string waypointId)
+    private static void TeleportToWaypointById(List<WaypointData> waypoints, string waypointId)
     {
         if (waypoints == null || waypoints.Count == 0)
         {
@@ -174,7 +167,7 @@ public class ModCommand : ModCommandBase
             return;
         }
 
-        Waypoint target;
+        WaypointData target;
 
         if (int.TryParse(waypointId, out int index))
         {
@@ -207,24 +200,24 @@ public class ModCommand : ModCommandBase
         TeleportToWaypoint(target, target.Id);
     }
 
-    private static void TeleportToWaypoint(Waypoint waypoint, string displayId)
+    private static void TeleportToWaypoint(WaypointData waypointData, string displayId)
     {
-        InfoFungame("waypoint.teleport", displayId, waypoint.Position);
-        Player.Tp(waypoint.Position);
+        InfoFungame("waypoint.teleport", displayId, waypointData.Position);
+        Player.Tp(waypointData.Position);
     }
 
-    private static List<Waypoint> GetWaypoints(Fungame fungame)
+    private static List<WaypointData> GetWaypoints(Fungame fungame)
     {
         if (fungame.Waypoints is { Count: > 0 })
             return fungame.Waypoints;
 
-        if (fungame.Waypoint != null)
-            return [fungame.Waypoint];
+        if (fungame.WaypointData != null)
+            return [fungame.WaypointData];
 
         return [];
     }
 
-    private static void ListWaypoints(List<Waypoint> waypoints)
+    private static void ListWaypoints(List<WaypointData> waypoints)
     {
         if (waypoints == null || waypoints.Count == 0)
         {
@@ -254,7 +247,6 @@ public class ModCommand : ModCommandBase
             return;
         }
 
-        // No subcommand → default to list
         if (args.Length < 3)
         {
             ListFeatures(fungame.Feature);
@@ -277,6 +269,7 @@ public class ModCommand : ModCommandBase
                     InfoFungame("feature.get_no_name");
                     return;
                 }
+
                 GetFeature(fungame.Feature, args[3]);
                 break;
             case "set":
@@ -285,6 +278,7 @@ public class ModCommand : ModCommandBase
                     InfoFungame("feature.set_missing_params");
                     return;
                 }
+
                 SetFeature(fungame.Feature, args[3], args[4]);
                 break;
             default:
@@ -466,8 +460,10 @@ public class ModCommand : ModCommandBase
         InfoFungame("select.success", fungame.Name, fungame.Id);
 
         if (HasWorldLoaded())
+        {
             MapLoader.ReloadMap(fungame);
-        else
+            MapLoader.LogMapInfo();
+        } else
             InfoFungame("select.without_world", fungame.Name);
     }
 
@@ -508,12 +504,6 @@ public class ModCommand : ModCommandBase
     {
         var message = Fungame(key, args);
         Log.Error(message, Logger);
-    }
-
-    private static void LogConsole(string key, params object[] args)
-    {
-        var message = Locale(key, args);
-        Log.Info(message, Logger);
     }
 
     private static void Info(string key, params object[] args)

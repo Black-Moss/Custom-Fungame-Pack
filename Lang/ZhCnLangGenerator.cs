@@ -180,7 +180,6 @@ namespace CustomFungamePack.Lang
             // Log - Map Loader (Build Mode)
             Add("log.map_loader.build_mode_save_applied", "Build Mode 存档应用完成: {0} 个方块, {1} 个液体, {2} 个背景, 失败 {3} 个");
             Add("log.map_loader.not_found_buildmode_save", "未找到 Build Mode 存档文件");
-            Add("log.map_loader.bg_sprite_missing", "未找到背景精灵: {0}");
         }
     }
 }

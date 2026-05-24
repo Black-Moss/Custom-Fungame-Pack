@@ -7,7 +7,6 @@ using MossLib.Tool;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Tilemaps;
 
 namespace CustomFungamePack;
 
@@ -15,12 +14,6 @@ public static class MapLoader
 {
     private const string LocaleKeyPre = "map_loader.";
     private static readonly ManualLogSource Logger = Plugin.Logger;
-
-    private static GameObject cachedBgTemplate;
-    private static readonly Dictionary<string, Sprite> SpriteCache =
-        new(StringComparer.OrdinalIgnoreCase);
-    private static readonly HashSet<string> MissingSpriteWarnings =
-        new(StringComparer.OrdinalIgnoreCase);
 
     public static void LoadAndApplyMapFromFungame(Fungame fungame)
     {
@@ -269,7 +262,7 @@ public static class MapLoader
     {
         try
         {
-            World.SetBlock(x, y, (ushort)blockId);
+            World.PlaceBlock(x, y, (ushort)blockId);
             blockCount++;
         }
         catch (Exception ex)
@@ -283,7 +276,7 @@ public static class MapLoader
     {
         try
         {
-            World.SetItem(x, y, itemId);
+            World.PlaceItem(x, y, itemId);
             itemCount++;
         }
         catch (Exception ex)
@@ -368,123 +361,16 @@ public static class MapLoader
                 Vector2Int localPos = new(x, y);
                 if (backgrounds.TryGetValue(localPos, out string bgId))
                 {
-                    PlaceBackgroundAt(new Vector2Int(worldX, worldY), bgId);
+                    World.PlaceBackground(new Vector2Int(worldX, worldY), bgId);
                 }
             }
         }
 
         MoreLogs("build_mode_save_applied", blockCount, liquidCount, bgCount, failCount);
-    }
-
-    private static GameObject GetBgTemplate()
-    {
-        if (cachedBgTemplate != null)
-            return cachedBgTemplate;
-
-        cachedBgTemplate = new GameObject("MapLoader_BgTemplate");
-        cachedBgTemplate.AddComponent<MeshFilter>();
-        cachedBgTemplate.AddComponent<MeshRenderer>();
-        cachedBgTemplate.SetActive(false);
-        UnityEngine.Object.DontDestroyOnLoad(cachedBgTemplate);
-        return cachedBgTemplate;
-    }
-
-    private static bool TryGetSprite(string backgroundId, out Sprite sprite)
-    {
-        if (SpriteCache.TryGetValue(backgroundId, out sprite)
-            && sprite != null)
-            return true;
-
-        sprite = Resources.Load<Sprite>(backgroundId);
-        if (sprite == null)
+        for (int i = 0; i < 5; i++)
         {
-            if (MissingSpriteWarnings.Add(backgroundId))
-                Warning("bg_sprite_missing", backgroundId);
-            return false;
+            Player.Tp(FungameCheck.CurrentFungame.SpawnPosition);
         }
-
-        SpriteCache[backgroundId] = sprite;
-        return true;
-    }
-
-    private static void PlaceBackgroundAt(Vector2Int pos, string backgroundId)
-    {
-        if (WorldGeneration.world == null)
-            return;
-
-        if (!TryGetSprite(backgroundId, out Sprite sprite))
-            return;
-
-        GameObject template = GetBgTemplate();
-        if (template == null)
-            return;
-
-        Vector3 worldPos3 = WorldGeneration.world.BlockToWorldPos(pos);
-        GameObject go = UnityEngine.Object.Instantiate(template, worldPos3,
-            Quaternion.identity);
-        go.name = $"BgTile_{pos.x}_{pos.y}";
-        go.SetActive(true);
-
-        Transform parent = WorldGeneration.world.worldGrid?.transform;
-        if (parent == null)
-        {
-            Tilemap chunk = WorldGeneration.world.GetClosestChunk(pos);
-            if (chunk != null)
-                parent = chunk.transform;
-        }
-
-        if (parent != null)
-            go.transform.SetParent(parent, true);
-
-        MeshFilter mf = go.GetComponent<MeshFilter>();
-        mf.mesh = CreateTileMesh(pos);
-
-        MeshRenderer mr = go.GetComponent<MeshRenderer>();
-        Material mat = new(WorldGeneration.world.defaultMat)
-        {
-            mainTexture = sprite.texture,
-            mainTextureScale = Vector2.one,
-            mainTextureOffset = Vector2.one
-        };
-        mr.material = mat;
-        mr.sortingOrder = -5000;
-        mr.material.color = Color.gray;
-    }
-
-    private static Mesh CreateTileMesh(Vector2Int pos)
-    {
-        const int tileCount = 4;
-        int u = pos.x % tileCount;
-        int v = pos.y % tileCount;
-        if (u < 0) u += tileCount;
-        if (v < 0) v += tileCount;
-
-        float step = 1f / tileCount;
-        float u0 = u * step;
-        float u1 = (u + 1) * step;
-        float v0 = v * step;
-        float v1 = (v + 1) * step;
-
-        Mesh mesh = new()
-        {
-            vertices =
-            [
-                new(-0.5f, -0.5f, 0),
-                new(0.5f, -0.5f, 0),
-                new(-0.5f, 0.5f, 0),
-                new(0.5f, 0.5f, 0)
-            ],
-            uv =
-            [
-                new(u0, v0),
-                new(u1, v0),
-                new(u0, v1),
-                new(u1, v1)
-            ],
-            triangles = [0, 2, 1, 2, 3, 1]
-        };
-        mesh.RecalculateNormals();
-        return mesh;
     }
 
     public static void ReloadMap(Fungame fungame)

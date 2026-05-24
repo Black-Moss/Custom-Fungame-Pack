@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -13,25 +11,39 @@ namespace CustomFungamePack;
 
 public class Fungame
 {
-    public string Name { get; set; }
-    public string Id { get; set; }
-    public string Version { get; set; }
-    public List<string> Author { get; set; }
-    public string Description { get; set; }
-    public Feature Feature { get; set; } = new();
-    public CommandData CommandData { get; set; }
-    public WaypointData WaypointData { get; set; }
-    public List<WaypointData> Waypoints { get; set; } = [];
-    public List<ItemData> Items { get; set; } = [];
-    public float[] Spawn { get; set; } = [0, 0];
-    public int X { get; set; } = 0;
-    public int Y { get; set; } = 0;
+    [JsonProperty("name")] public string Name { get; set; }
+    [JsonProperty("id")] public string Id { get; set; }
+    [JsonProperty("version")] public string Version { get; set; }
+    [JsonProperty("author")] public List<string> Author { get; set; }
+    [JsonProperty("description")] public string Description { get; set; }
+    [JsonProperty("feature")] public Feature Feature { get; set; } = new();
+    [JsonProperty("waypoints")] public List<WaypointData> Waypoints { get; set; } = [];
+    [JsonProperty("items")] public List<ItemData> Items { get; set; } = [];
+    [JsonProperty("spawn")] public float[] Spawn { get; set; } = [0, 0];
+    [JsonProperty("x")] public int X { get; set; }
+    [JsonProperty("y")] public int Y { get; set; }
+    [JsonProperty("xp")] public XpData XpData { get; set; }
 
+    [JsonProperty("type")]
+    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
     public WorldGeneration.OverrideSceneType Type { get; set; } = WorldGeneration.OverrideSceneType.Debug;
+
     [JsonIgnore] public Vector2 MapPosition => new(X, Y);
-    [JsonProperty("map_data")] public MapData MapData { get; set; }
-    [JsonProperty("custom_structures")] public string CustomStructures;
-    [JsonProperty("build_mode_save")] public string BuildModeSave;
+
+    [JsonProperty("map_data", NullValueHandling = NullValueHandling.Ignore)]
+    public MapData MapData { get; set; }
+
+    [JsonProperty("command", NullValueHandling = NullValueHandling.Ignore)]
+    public CommandData CommandData { get; set; }
+
+    [JsonProperty("waypoint", NullValueHandling = NullValueHandling.Ignore)]
+    public WaypointData WaypointData { get; set; }
+
+    [JsonProperty("custom_structures", NullValueHandling = NullValueHandling.Ignore)]
+    public string CustomStructures;
+
+    [JsonProperty("build_mode_save", NullValueHandling = NullValueHandling.Ignore)]
+    public string BuildModeSave;
 
     [JsonProperty("skip_terrain")] public bool SkipTerrain { get; set; } = true;
     [JsonProperty("skip_structures")] public bool SkipStructures { get; set; } = true;
@@ -63,8 +75,8 @@ public class Fungame
 [UsedImplicitly]
 public class MapData
 {
-    public string[] Map { get; set; } = [];
-    public Dictionary<string, object> Key { get; set; } = new();
+    [JsonProperty("map")] public string[] Map { get; set; } = [];
+    [JsonProperty("key")] public Dictionary<string, object> Key { get; set; } = new();
 }
 
 [UsedImplicitly]
@@ -100,4 +112,44 @@ public class ItemData
     public string Id { get; set; }
     public int Slot { get; set; }
     public bool Force { get; set; }
+}
+
+[UsedImplicitly]
+public class XpData
+{
+    public XpData()
+    {
+        StrXp = _base[0];
+        ResXp = _base[1];
+        IntXp = _base[2];
+        ExpStr = MinStr;
+        ExpRes = MinRes;
+        ExpInt = MinInt;
+        
+        MinStr = Skills.GetExperienceForLevel(StrXp);
+        MaxStr = Skills.GetExperienceForLevel(StrXp + 1);
+        MinRes = Skills.GetExperienceForLevel(ResXp);
+        MaxRes = Skills.GetExperienceForLevel(ResXp + 1);
+        MinInt = Skills.GetExperienceForLevel(IntXp);
+        MaxInt = Skills.GetExperienceForLevel(IntXp + 1);
+    }
+
+    private readonly int[] _base = Skills.BaseSkills(0);
+    public int StrXp { get; set; }
+    public int ResXp { get; set; }
+    public int IntXp { get; set; }
+
+    public float ExpStr { get; set; }
+    public float ExpRes { get; set; }
+    public float ExpInt { get; set; }
+    
+    public int MinStr { get; set; }
+    public int MaxStr { get; set; }
+    
+    public int MinRes { get; set; }
+    public int MaxRes { get; set; }
+    
+    public int MinInt { get; set; }
+    public int MaxInt { get; set; }
+    public float XpMultiple { get; set; } = 1f;
 }

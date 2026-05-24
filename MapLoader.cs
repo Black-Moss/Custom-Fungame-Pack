@@ -402,7 +402,32 @@ public static class MapLoader
         try
         {
             var jsonContent = File.ReadAllText(jsonPath);
-            var reloadedFungame = JsonConvert.DeserializeObject<Fungame>(jsonContent);
+            var jsonObject = JObject.Parse(jsonContent);
+
+            // Normalize PascalCase keys from older fg save output to lowercase
+            NormalizeKey(jsonObject, "Name", "name");
+            NormalizeKey(jsonObject, "Id", "id");
+            NormalizeKey(jsonObject, "Version", "version");
+            NormalizeKey(jsonObject, "Author", "author");
+            NormalizeKey(jsonObject, "Description", "description");
+            NormalizeKey(jsonObject, "Feature", "feature");
+            NormalizeKey(jsonObject, "Waypoints", "waypoints");
+            NormalizeKey(jsonObject, "Items", "items");
+            NormalizeKey(jsonObject, "Spawn", "spawn");
+            NormalizeKey(jsonObject, "X", "x");
+            NormalizeKey(jsonObject, "Y", "y");
+
+            // Normalize MapData internal keys
+            if (jsonObject.ContainsKey("map_data") && jsonObject["map_data"] is JObject mapObj)
+            {
+                if (!mapObj.ContainsKey("map") && mapObj.ContainsKey("Map"))
+                    mapObj["map"] = mapObj["Map"];
+                if (!mapObj.ContainsKey("key") && mapObj.ContainsKey("Key"))
+                    mapObj["key"] = mapObj["Key"];
+            }
+
+            var modifiedJson = jsonObject.ToString(Formatting.None);
+            var reloadedFungame = JsonConvert.DeserializeObject<Fungame>(modifiedJson);
 
             if (reloadedFungame == null)
             {
@@ -445,6 +470,7 @@ public static class MapLoader
         {
             Error("reload_failed", ex.Message);
         }
+
         PickItems(fungame);
     }
 
@@ -548,5 +574,11 @@ public static class MapLoader
     {
         var message = ModLocale.Log($"{LocaleKeyPre}{key}", args);
         Log.Warning(message, Logger);
+    }
+
+    private static void NormalizeKey(JObject jsonObject, string pascalKey, string lowerKey)
+    {
+        if (!jsonObject.ContainsKey(lowerKey) && jsonObject.ContainsKey(pascalKey))
+            jsonObject[lowerKey] = jsonObject[pascalKey];
     }
 }

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using BepInEx.Logging;
 using HarmonyLib;
 using MossLib.Base;
 using MossLib.Tool;
+using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace CustomFungamePack;
 
@@ -37,7 +40,9 @@ public class ModCommand : ModCommandBase
                         "select",
                         "list",
                         "feature",
-                        "waypoint"
+                        "waypoint",
+                        "save",
+                        "exit"
                     ]
                 }
             };
@@ -102,13 +107,19 @@ public class ModCommand : ModCommandBase
                 if (args.Length > 2)
                     Select(args[2]);
                 else
-                    MapLoader.LogFungameList(); 
+                    MapLoader.LogFungameList();
                 break;
             case "feature":
                 HandleFeature(args);
                 break;
             case "waypoint":
                 HandleWaypoint(args);
+                break;
+            case "save":
+                HandleSave(args);
+                break;
+            case "exit":
+                HandleExit(args);
                 break;
             default:
                 InfoFungame("help");
@@ -158,6 +169,254 @@ public class ModCommand : ModCommandBase
                 InfoFungame("waypoint.unknown_subcommand", subCommand);
                 break;
         }
+    }
+
+    private static void HandleSave(string[] args)
+    {
+        var fungame = FungameCheck.CurrentFungame;
+        if (fungame == null)
+        {
+            Error("no_fungame");
+            return;
+        }
+
+        // 解析可选的 targetName 参数
+        string targetPath = null;
+
+        if (args.Length == 3)
+        {
+            // fg save <targetName>  — 全量保存到目标 Fungame
+            if (!args[2].Contains(","))
+            {
+                targetPath = FindTargetFungamePath(args[2]);
+                if (targetPath == null)
+                {
+                    ErrorFungame("save.target_not_found", args[2]);
+                    return;
+                }
+            }
+            else
+            {
+                // 只有一个坐标，缺少结束坐标
+                ErrorFungame("save.missing_end_coord");
+                return;
+            }
+        }
+        else if (args.Length == 5)
+        {
+            // fg save <x1,y1> <x2,y2> <targetName>  — 区域保存到目标 Fungame
+            targetPath = FindTargetFungamePath(args[4]);
+            if (targetPath == null)
+            {
+                ErrorFungame("save.target_not_found", args[4]);
+                return;
+            }
+        }
+
+        var directoryPath = targetPath ?? fungame.DirectoryPath;
+        if (string.IsNullOrEmpty(directoryPath))
+        {
+            ErrorFungame("save.no_directory");
+            return;
+        }
+
+        try
+        {
+            var jsonPath = Path.Combine(directoryPath, "fungame.json");
+
+            if (args.Length == 4 || args.Length == 5)
+            {
+                SaveAreaAsMapData(fungame, jsonPath, args[2], args[3]);
+                return;
+            }
+
+            using (FileStream output = new(jsonPath, FileMode.Create))
+            using (StreamWriter streamWriter = new(output))
+            using (JsonTextWriter jsonWriter = new(streamWriter))
+            {
+                jsonWriter.Formatting = Formatting.Indented;
+
+                var serializer = new JsonSerializer
+                {
+                    Formatting = Formatting.Indented,
+                    NullValueHandling = NullValueHandling.Ignore
+                };
+                serializer.Serialize(jsonWriter, fungame);
+
+                jsonWriter.Flush();
+                streamWriter.Flush();
+                output.Flush();
+            }
+
+            InfoFungame("save.success", fungame.Name, jsonPath);
+        }
+        catch (Exception ex)
+        {
+            ErrorFungame("save.failed", fungame.Name, ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// 通过文件夹名称查找目标 Fungame 的目录路径
+    /// </summary>
+    private static string FindTargetFungamePath(string targetName)
+    {
+        foreach (var dir in FungameCheck.ValidDirectories)
+        {
+            var folderName = Path.GetFileName(dir);
+            if (string.Equals(folderName, targetName, StringComparison.OrdinalIgnoreCase))
+                return dir;
+        }
+        return null;
+    }
+    
+    private static void SaveAreaAsMapData(Fungame fungame, string jsonPath, string startStr, string endStr)
+    {
+        if (!EnsureWorldLoaded()) return;
+
+        var startParts = startStr.Split(',');
+        var endParts = endStr.Split(',');
+
+        if (startParts.Length != 2 || endParts.Length != 2)
+        {
+            ErrorFungame("save.invalid_coordinates");
+            return;
+        }
+
+        if (!float.TryParse(startParts[0].Trim(), out float wx1) ||
+            !float.TryParse(startParts[1].Trim(), out float wy1) ||
+            !float.TryParse(endParts[0].Trim(), out float wx2) ||
+            !float.TryParse(endParts[1].Trim(), out float wy2))
+        {
+            ErrorFungame("save.invalid_coordinates");
+            return;
+        }
+
+        var world = WorldGeneration.world;
+        Vector2Int blockA = world.WorldToBlockPos(new Vector2(wx1, wy1));
+        Vector2Int blockB = world.WorldToBlockPos(new Vector2(wx2, wy2));
+
+        int minX = Mathf.Min(blockA.x, blockB.x);
+        int maxX = Mathf.Max(blockA.x, blockB.x);
+        int minY = Mathf.Min(blockA.y, blockB.y);
+        int maxY = Mathf.Max(blockA.y, blockB.y);
+
+        int cMinX = Mathf.Clamp(minX, 0, (int)world.width - 1);
+        int cMaxX = Mathf.Clamp(maxX, 0, (int)world.width - 1);
+        int cMinY = Mathf.Clamp(minY, 0, (int)world.height - 1);
+        int cMaxY = Mathf.Clamp(maxY, 0, (int)world.height - 1);
+
+        int regionW = cMaxX - cMinX + 1;
+        int regionH = cMaxY - cMinY + 1;
+
+        if (regionW <= 0 || regionH <= 0)
+        {
+            ErrorFungame("save.area_empty");
+            return;
+        }
+
+        var blockIds = new ushort[regionW, regionH];
+
+        var uniqueBlockIds = new List<ushort>();
+        var blockToChar   = new Dictionary<ushort, string>();
+
+        uniqueBlockIds.Add(0);
+        blockToChar[0] = "0";
+
+        for (int x = 0; x < regionW; x++)
+        {
+            for (int y = 0; y < regionH; y++)
+            {
+                int bx = cMinX + x;
+                int by = cMaxY - y;
+                ushort id = world.GetBlock(new Vector2Int(bx, by));
+
+                blockIds[x, y] = id;
+
+                if (id > 0 && !blockToChar.ContainsKey(id))
+                {
+                    blockToChar[id] = EncodeBlockIndex(uniqueBlockIds.Count);
+                    uniqueBlockIds.Add(id);
+                }
+            }
+        }
+
+        var mapRows = new string[regionH];
+        for (int y = 0; y < regionH; y++)
+        {
+            var chars = new char[regionW];
+            for (int x = 0; x < regionW; x++)
+            {
+                ushort id = blockIds[x, y];
+                chars[x] = blockToChar.TryGetValue(id, out string ch)
+                    ? ch[0]
+                    : '0';
+            }
+            mapRows[y] = new string(chars);
+        }
+
+        var keyDict = new Dictionary<string, object>();
+        for (int i = 0; i < uniqueBlockIds.Count; i++)
+        {
+            keyDict[EncodeBlockIndex(i)] = (long)uniqueBlockIds[i];
+        }
+
+        // X/Y 是地图原点坐标（放置位置），不随选区改变
+        fungame.MapData = new MapData
+        {
+            Map = mapRows,
+            Key = keyDict
+        };
+        fungame.CustomStructures = null;
+        fungame.BuildModeSave    = null;
+
+        var json = JsonConvert.SerializeObject(fungame, Formatting.Indented,
+            new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        File.WriteAllText(jsonPath, json);
+
+        InfoFungame("save.area_success",
+            cMinX, cMinY, cMaxX, cMaxY,
+            regionW, regionH, uniqueBlockIds.Count, jsonPath);
+    }
+
+    private static void HandleExit(string[] args)
+    {
+        if (!EnsureWorldLoaded()) return;
+
+        WorldGenerationPatch.ExitTargetScene = WorldGeneration.OverrideSceneType.None;
+
+        if (args.Length >= 3)
+        {
+            var target = args[2].ToLower();
+            switch (target)
+            {
+                case "tutorial":
+                    WorldGenerationPatch.ExitTargetScene = WorldGeneration.OverrideSceneType.Tutorial;
+                    break;
+                case "none":
+                    WorldGenerationPatch.ExitTargetScene = WorldGeneration.OverrideSceneType.None;
+                    break;
+                default:
+                    ErrorFungame("exit.invalid_target", target);
+                    WorldGenerationPatch.ExitTargetScene = null;
+                    return;
+            }
+        }
+
+        WorldGenerationPatch.CurrentFungame = null;
+        InfoFungame("exit", WorldGenerationPatch.ExitTargetScene.Value);
+
+        var currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
+    }
+
+    private static string EncodeBlockIndex(int index)
+    {
+        if (index < 10)
+            return ((char)('0' + index)).ToString();
+        if (index < 36)
+            return ((char)('a' + index - 10)).ToString();
+        return ((char)('A' + index - 36)).ToString();
     }
 
     private static void TeleportToWaypointById(List<WaypointData> waypoints, string waypointId)
@@ -464,7 +723,8 @@ public class ModCommand : ModCommandBase
         {
             MapLoader.ReloadMap(fungame);
             MapLoader.LogMapInfo();
-        } else
+        }
+        else
             InfoFungame("select.without_world", fungame.Name);
     }
 

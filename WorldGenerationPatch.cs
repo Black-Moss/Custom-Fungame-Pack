@@ -16,6 +16,7 @@ public static class WorldGenerationPatch
     public static WorldGeneration WorldGeneration;
     internal static Fungame CurrentFungame;
     private static float _sLoopTimer;
+    public static WorldGeneration.OverrideSceneType? ExitTargetScene;
 
     [HarmonyPatch("Awake")]
     [HarmonyPostfix]
@@ -38,6 +39,11 @@ public static class WorldGenerationPatch
             {
                 SetDefaultSceneType(WorldGeneration, fungame);
             }
+        }
+        else if (ExitTargetScene.HasValue)
+        {
+            WorldGeneration.biomeOverride = ExitTargetScene.Value;
+            MoreLogs("scene_type_set", ExitTargetScene.Value);
         }
         else
         {
@@ -101,7 +107,7 @@ public static class WorldGenerationPatch
     [HarmonyPrefix]
     public static bool SkipWorldCreateBackground()
     {
-        if (!CurrentFungame.SkipBackground) return true;
+        if (CurrentFungame == null || !CurrentFungame.SkipBackground) return true;
         MoreLogs("skip_generation", ModLocale.Log("common.background"));
         return false;
     }
@@ -110,7 +116,7 @@ public static class WorldGenerationPatch
     [HarmonyPrefix]
     public static bool SkipWorldGenerateStructures()
     {
-        if (!CurrentFungame.SkipStructures) return true;
+        if (CurrentFungame == null || !CurrentFungame.SkipStructures) return true;
         MoreLogs("skip_generation", ModLocale.Log("common.structure"));
         return false;
     }
@@ -119,7 +125,7 @@ public static class WorldGenerationPatch
     [HarmonyPrefix]
     public static bool SkipWorldGenerateTerrain()
     {
-        if (!CurrentFungame.SkipTerrain) return true;
+        if (CurrentFungame == null || !CurrentFungame.SkipTerrain) return true;
         MoreLogs("skip_generation", ModLocale.Log("common.terrain"));
         return false;
     }
@@ -129,6 +135,13 @@ public static class WorldGenerationPatch
     public static void InitializationWorld()
     {
         WorldGeneration.loadingText.text = Locale("initializing_world");
+
+        if (ExitTargetScene.HasValue)
+        {
+            ExitTargetScene = null;
+            Info("exited_to_vanilla");
+            return;
+        }
 
         var fungame = FungameCheck.CurrentFungame
                       ?? FungameCheck.Fungames.FirstOrDefault();
@@ -240,6 +253,30 @@ public static class WorldGenerationPatch
             MoreLogs("executing_loop_command", ModLocale.Log("common.loop_command"), command);
             Console.RunCommand(command);
         }
+    }
+
+    [HarmonyPatch(typeof(Skills), "Awake")]
+    private static void SetXp(Skills __instance)
+    {
+        var xpData = FungameCheck.CurrentFungame.XpData;
+        
+        __instance.INT = xpData.IntXp;
+        __instance.RES = xpData.ResXp;
+        __instance.STR = xpData.StrXp;
+        
+        __instance.expINT = xpData.ExpInt;
+        __instance.expRES = xpData.ExpRes;
+        __instance.expSTR = xpData.ExpStr;
+        
+        __instance.minINT = xpData.MinInt;
+        __instance.minRES = xpData.MinRes;
+        __instance.minSTR = xpData.MinStr;
+        
+        __instance.maxINT = xpData.MaxInt;
+        __instance.maxRES = xpData.MaxRes;
+        __instance.maxSTR = xpData.MaxStr;
+
+        Skills.xpGainMult = xpData.XpMultiple;
     }
 
     private static void MoreLogs(string key, params object[] args)

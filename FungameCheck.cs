@@ -171,6 +171,19 @@ public static class FungameCheck
             var errors = new List<string>();
             var warnings = new List<string>();
 
+            // Normalize PascalCase keys from older fg save output to lowercase
+            NormalizeKey(jsonObject, "Name", "name");
+            NormalizeKey(jsonObject, "Id", "id");
+            NormalizeKey(jsonObject, "Version", "version");
+            NormalizeKey(jsonObject, "Author", "author");
+            NormalizeKey(jsonObject, "Description", "description");
+            NormalizeKey(jsonObject, "Feature", "feature");
+            NormalizeKey(jsonObject, "Waypoints", "waypoints");
+            NormalizeKey(jsonObject, "Items", "items");
+            NormalizeKey(jsonObject, "Spawn", "spawn");
+            NormalizeKey(jsonObject, "X", "x");
+            NormalizeKey(jsonObject, "Y", "y");
+
             ValidateRequiredFieldWithDefault(jsonObject, "name", warnings, "Unnamed Fungame");
             ValidateRequiredFieldWithDefault(jsonObject, "id", warnings, GenerateDefaultId(filePath));
             ValidateRequiredFieldWithDefault(jsonObject, "version", warnings, "1.0.0");
@@ -210,8 +223,10 @@ public static class FungameCheck
 
             bool hasCustomStructuresMod = Type.GetType("Custom_Structures.Plugin, Custom Structures") != null;
             bool hasCustomStructuresField =
-                jsonObject.ContainsKey("custom_structures") && jsonObject["custom_structures"] != null;
-            bool hasMapData = jsonObject.ContainsKey("map_data") && jsonObject["map_data"] != null;
+                jsonObject.ContainsKey("custom_structures") && jsonObject["custom_structures"] != null
+                && jsonObject["custom_structures"].Type != JTokenType.Null;
+            bool hasMapData = jsonObject.ContainsKey("map_data") && jsonObject["map_data"] != null
+                && jsonObject["map_data"].Type != JTokenType.Null;
             bool hasBuildModeSave = jsonObject.ContainsKey("build_mode_save")
                                     && jsonObject["build_mode_save"] != null
                                     && jsonObject["build_mode_save"].Type != JTokenType.Null
@@ -223,7 +238,13 @@ public static class FungameCheck
 
             if (contentTypeCount > 1)
             {
-                errors.Add(Validation("multiple_content_types"));
+                warnings.Add(Validation("multiple_content_types"));
+            }
+
+            // Priority: MapData > custom_structures > build_mode_save
+            if (hasMapData)
+            {
+                ValidateMapData(jsonObject["map_data"] as JObject, errors);
             }
             else if (hasCustomStructuresField)
             {
@@ -231,10 +252,6 @@ public static class FungameCheck
                 {
                     errors.Add(Validation("custom_structures_without_mod"));
                 }
-            }
-            else if (hasMapData)
-            {
-                ValidateMapData(jsonObject["map_data"] as JObject, errors);
             }
             else if (hasBuildModeSave)
             {
@@ -332,6 +349,12 @@ public static class FungameCheck
             errors.Add(Validation("map_invalid_type"));
             return;
         }
+
+        // Normalize PascalCase keys from older fg save output to lowercase
+        if (!mapObject.ContainsKey("map") && mapObject.ContainsKey("Map"))
+            mapObject["map"] = mapObject["Map"];
+        if (!mapObject.ContainsKey("key") && mapObject.ContainsKey("Key"))
+            mapObject["key"] = mapObject["Key"];
 
         if (!mapObject.ContainsKey("map"))
         {
@@ -546,6 +569,12 @@ public static class FungameCheck
     private static bool IsValidId(string id)
     {
         return !string.IsNullOrWhiteSpace(id) && id.All(c => char.IsLower(c) || char.IsDigit(c) || c == '_');
+    }
+
+    private static void NormalizeKey(JObject jsonObject, string pascalKey, string lowerKey)
+    {
+        if (!jsonObject.ContainsKey(lowerKey) && jsonObject.ContainsKey(pascalKey))
+            jsonObject[lowerKey] = jsonObject[pascalKey];
     }
 
     private static string Locale(string key, params object[] args)

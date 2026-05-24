@@ -23,9 +23,18 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.description", "Fungame 的相关指令");
             Add("command.fungame.string", "选择功能");
             Add("command.fungame.parameter", "功能参数");
-            Add("command.fungame.help", "可用子命令:\n  reload  - 重新加载当前地图\n  info    - 显示地图信息\n  spawn   - 传送回出生点\n  select  - 选择 Fungame\n  list    - 列出所有 Fungame\n  feature - 管理特性 (list/get/set)\n  waypoint- 管理路径点 (list/get)");
+            Add("command.fungame.help",
+                "可用子命令:\n  " +
+                "reload  - 重新加载当前地图\n  " +
+                "info    - 显示地图信息\n  " +
+                "spawn   - 传送回出生点\n  " +
+                "select  - 选择 Fungame\n  " +
+                "list    - 列出所有 Fungame\n  " +
+                "feature - 管理特性 (list/get/set)\n  " +
+                "waypoint- 管理路径点 (list/get)\n  " +
+                "save    - 保存当前Fungame到本地");
             Add("command.fungame.reload", "正在重新加载地图...");
-            
+
             // Command - Fungame - Info
             Add("command.fungame.info.name", "名称: {0}");
             Add("command.fungame.info.id", "ID: {0}");
@@ -34,12 +43,14 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.info.description", "描述: {0}");
             Add("command.fungame.info.features", "特性: {0}");
             Add("command.fungame.info.spawn", "出生点: {0}");
-            
+
             // Command - Fungame - Spawn
             Add("command.fungame.spawn", "传送回出生点{0}中...");
-            
+
             // Command - Fungame - Waypoint
-            Add("command.fungame.waypoint.help", "路径点子命令:\n  list - 列出所有路径点\n  get <id或名称> - 传送到指定路径点");
+            Add("command.fungame.waypoint.help", "路径点子命令:\n  " +
+                                                 "list - 列出所有路径点\n  " +
+                                                 "get <id或名称> - 传送到指定路径点");
             Add("command.fungame.waypoint.list_header", "可用路径点 ({0}):");
             Add("command.fungame.waypoint.list_item", "  {0}. {1} - 位置: {2}");
             Add("command.fungame.waypoint.teleport", "正在传送到路径点'{0}'，位置 {1}...");
@@ -47,21 +58,39 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.waypoint.invalid_index", "无效的索引 {0}，请输入 1 到 {1} 之间的数字");
             Add("command.fungame.waypoint.get_no_id", "请指定路径点 ID 或索引来传送");
             Add("command.fungame.waypoint.unknown_subcommand", "未知的路径点子命令：{0}");
-            
+
             // Command - Fungame - List
             Add("command.fungame.list.header", "已加载 {0} 个 Fungame:");
             Add("command.fungame.list.item", "{0}[{1}] {2} (ID: {3}, 版本: {4}, 作者: {5})");
             Add("command.fungame.list.empty", "没有可用的 Fungame");
-            
+
             // Command - Fungame - Select
             Add("command.fungame.select.no_key", "请提供要选择的 Fungame ID 或名称");
             Add("command.fungame.select.not_found", "未找到 Fungame: {0}");
             Add("command.fungame.select.success", "已选择 {0} (ID: {1})");
             Add("command.fungame.select.without_world", "已选择 {0}，但世界未加载。地图将在开始游戏时加载。");
             Add("command.fungame.select.invalid_index", "无效的索引 {0}，请输入 1 到 {1} 之间的数字");
-            
+
+            // Command - Fungame - Exit
+            Add("command.fungame.exit", "正在退出当前 Fungame，返回{0}模式...");
+            Add("command.fungame.exit.invalid_target", "未知的退出目标: {0}，可用: none, tutorial");
+
+            // Command - Fungame - Save
+            Add("command.fungame.save.success", "已将 Fungame '{0}' 保存到: {1}");
+            Add("command.fungame.save.failed", "保存 Fungame '{0}' 失败: {1}");
+            Add("command.fungame.save.no_directory", "当前 Fungame 没有关联的目录路径，无法保存");
+            Add("command.fungame.save.invalid_coordinates", "无效的坐标格式，请使用 Vector2 格式：\"x,y\" (例如 \"86,-11\")");
+            Add("command.fungame.save.area_empty", "指定区域超出世界边界或为空");
+            Add("command.fungame.save.area_success", "已保存区域物块地图: ({0},{1}) 到 ({2},{3}), 尺寸 {4}x{5}, {6} 种物块类型 → {7}");
+            Add("command.fungame.save.target_not_found", "目标 Fungame 文件夹 '{0}' 未找到");
+            Add("command.fungame.save.missing_end_coord", "缺少结束坐标，请提供两个坐标参数 (例如: fg save 86,-11 2,45)");
+
             // Command - Fungame - Feature
-            Add("command.fungame.feature.help", "特性子命令:\n  list - 列出所有特性\n  get <name> - 获取特性值\n  set <name> <value> - 设置特性值");
+            Add("command.fungame.feature.help",
+                "特性子命令:\n  " +
+                "list - 列出所有特性\n  " +
+                "get <name> - 获取特性值\n  " +
+                "set <name> <value> - 设置特性值");
             Add("command.fungame.feature.unknown_subcommand", "未知的特性子命令：{0}");
             Add("command.fungame.feature.get_no_name", "请指定要获取的特性名称");
             Add("command.fungame.feature.set_missing_params", "请指定特性名称和值来设置");
@@ -78,7 +107,7 @@ namespace CustomFungamePack.Lang
             Add("log.fungame_check.author_not_string", "作者元素 {0} 不是字符串，已移除");
             Add("log.fungame_check.author_empty", "作者数组为空，已设置默认值");
             Add("log.fungame_check.version_format_warning", "版本格式'{0}'不正确，将使用默认版本'1.0.0'");
-            
+
             // Log - World Generation
             Add("log.world_generation.scene_type_set", "设置场景类型为: {0}");
             Add("log.world_generation.no_features_enabled", "未启用任何特性");
@@ -91,9 +120,10 @@ namespace CustomFungamePack.Lang
             Add("log.world_generation.no_map_data", "Fungame {0} 不包含地图数据");
             Add("log.world_generation.no_content_type", "Fungame '{0}' 未定义任何内容类型（MapData、CustomStructures 或 BuildModeSave）");
             Add("log.world_generation.no_commands", "未启用任何 {0}");
+            Add("log.world_generation.exited_to_vanilla", "已退出 Fungame，返回原版游戏");
             Add("log.world_generation.executing_command", "执行 {0}: '{1}'");
             Add("log.world_generation.executing_loop_command", "执行循环 {0}: '{1}'");
-            
+
             // Log - Validation
             Add("log.validation.map_invalid_type", "map 字段格式不正确");
             Add("log.validation.map_missing_field", "地图缺少必需字段: {0}");
@@ -118,7 +148,7 @@ namespace CustomFungamePack.Lang
             Add("log.validation.field_convert_to_array", "{0} 字段必须是数组，已转换为数组");
             Add("log.validation.array_empty_default", "{0} 数组为空，已设置默认值");
             Add("log.validation.array_empty_removed", "{0} 数组为空，已移除");
-            
+
             // Log - Map Loader
             Add("log.map_loader.load_error", "Fungame 或地图数据为空");
             Add("log.map_loader.invalid_format", "无效的地图格式，缺少 map 字段");
@@ -143,13 +173,14 @@ namespace CustomFungamePack.Lang
             Add("log.map_loader.feature_enabled", "已启用 {0}");
             Add("log.map_loader.feature_enabled_with_value", "已启用 {0}: {1}");
             Add("log.map_loader.skip_generation", "已跳过 {0} 生成");
-            
+
             // Log - Error
             Add("log.error.no_fungame_file", "找不到 fungame.json 文件: {0}");
             Add("log.error.no_valid_directories", "没有有效的 Fungame 目录，请检查 Fungames 文件夹");
             Add("log.error.custom_structures_mod_not_loaded", "Fungame '{0}' 需要自定义结构模组，但该模组未加载");
-            Add("log.error.multiple_content_types", "Fungame '{0}' 同时定义了多种内容类型（MapData、CustomStructures、BuildModeSave），只允许定义一种");
-            
+            Add("log.error.multiple_content_types",
+                "Fungame '{0}' 同时定义了多种内容类型（MapData、CustomStructures、BuildModeSave），只允许定义一种");
+
             // Log - Common
             Add("log.common.map", "地图");
             Add("log.common.item", "物品");
@@ -159,12 +190,12 @@ namespace CustomFungamePack.Lang
             Add("log.common.background", "背景");
             Add("log.common.startup_command", "启动命令");
             Add("log.common.loop_command", "循环命令");
-            
+
             // Log - Mod Command
             Add("log.mod_command.empty_type", "未知的指令类型");
             Add("log.mod_command.world_not_loaded", "未加载世界");
             Add("log.mod_command.no_waypoints", "当前 Fungame 未定义路径点");
-            
+
             // Log - Custom Structures Loader
             Add("log.custom_structures_loader.loading", "正在加载自定义结构: {0}");
             Add("log.custom_structures_loader.failed", "加载自定义结构({0})失败: {1}");

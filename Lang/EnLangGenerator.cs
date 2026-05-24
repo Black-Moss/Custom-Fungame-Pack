@@ -22,9 +22,18 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.description", "Fungame related commands");
             Add("command.fungame.string", "Select function");
             Add("command.fungame.parameter", "Function parameter");
-            Add("command.fungame.help", "Available subcommands:\n  reload  - Reload current map\n  info    - Show map info\n  spawn   - Teleport to spawn\n  select  - Select a Fungame\n  list    - List all Fungames\n  feature - Manage features (list/get/set)\n  waypoint- Manage waypoints (list/get)");
+            Add("command.fungame.help",
+                "Available subcommands:\n  " +
+                "reload  - Reload current map\n  " +
+                "info    - Show map info\n  " +
+                "spawn   - Teleport to spawn\n  " +
+                "select  - Select a Fungame\n  " +
+                "list    - List all Fungames\n  " +
+                "feature - Manage features (list/get/set)\n  " +
+                "waypoint- Manage waypoints (list/get)\n  " +
+                "save    - Save current Fungame to local file");
             Add("command.fungame.reload", "Reloading map...");
-            
+
             // Command - Fungame - Info
             Add("command.fungame.info.name", "Name: {0}");
             Add("command.fungame.info.id", "ID: {0}");
@@ -33,12 +42,15 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.info.description", "Description: {0}");
             Add("command.fungame.info.features", "Features: {0}");
             Add("command.fungame.info.spawn", "Spawn point: {0}");
-            
+
             // Command - Fungame - Spawn
             Add("command.fungame.spawn", "Teleporting back to the spawn point {0} now...");
-            
+
             // Command - Fungame - Waypoint
-            Add("command.fungame.waypoint.help", "Waypoint subcommands:\n  list - List all waypoints\n  get <id or name> - Teleport to waypoint");
+            Add("command.fungame.waypoint.help",
+                "Waypoint subcommands:\n  " +
+                "list - List all waypoints\n  " +
+                "get <id or name> - Teleport to waypoint");
             Add("command.fungame.waypoint.list_header", "Available waypoints ({0}):");
             Add("command.fungame.waypoint.list_item", "  {0}. {1} - Position: {2}");
             Add("command.fungame.waypoint.teleport", "Teleporting to waypoint '{0}' at position {1}...");
@@ -46,21 +58,39 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.waypoint.invalid_index", "Invalid index {0}, please enter a number between 1 and {1}");
             Add("command.fungame.waypoint.get_no_id", "Please specify a waypoint ID or index to teleport to");
             Add("command.fungame.waypoint.unknown_subcommand", "Unknown waypoint subcommand: {0}");
-            
+
             // Command - Fungame - List
             Add("command.fungame.list.header", "Loaded {0} Fungame(s):");
             Add("command.fungame.list.item", "{0}[{1}] {2} (ID: {3}, Version: {4}, Authors: {5})");
             Add("command.fungame.list.empty", "No Fungames available");
-            
+
             // Command - Fungame - Select
             Add("command.fungame.select.no_key", "Please provide a Fungame ID or name to select");
             Add("command.fungame.select.not_found", "Fungame not found: {0}");
             Add("command.fungame.select.success", "Selected {0} (ID: {1})");
-            Add("command.fungame.select.without_world", "Selected {0}, but world is not loaded. Map will be loaded when you start a game.");
+            Add("command.fungame.select.without_world",
+                "Selected {0}, but world is not loaded. Map will be loaded when you start a game.");
             Add("command.fungame.select.invalid_index", "Invalid index {0}, please enter a number between 1 and {1}");
-            
+
+            // Command - Fungame - Exit
+            Add("command.fungame.exit", "Exiting current Fungame, returning to {0} mode...");
+            Add("command.fungame.exit.invalid_target", "Unknown exit target: {0}, available: none, tutorial");
+
+            // Command - Fungame - Save
+            Add("command.fungame.save.success", "Fungame '{0}' saved to: {1}");
+            Add("command.fungame.save.failed", "Failed to save Fungame '{0}': {1}");
+            Add("command.fungame.save.no_directory", "Current Fungame has no associated directory path, cannot save");
+            Add("command.fungame.save.invalid_coordinates", "Invalid coordinate format. Use Vector2 format: \"x,y\" (e.g. \"86,-11\")");
+            Add("command.fungame.save.area_empty", "Specified area is outside world bounds or empty");
+            Add("command.fungame.save.area_success", "Area block map saved: ({0},{1}) to ({2},{3}), size {4}x{5}, {6} block types → {7}");
+            Add("command.fungame.save.target_not_found", "Target Fungame folder '{0}' not found");
+            Add("command.fungame.save.missing_end_coord", "Missing end coordinate, please provide both coordinates (e.g. fg save 86,-11 2,45)");
+
             // Command - Fungame - Feature
-            Add("command.fungame.feature.help", "Feature subcommands:\n  list - List all features\n  get <name> - Get feature value\n  set <name> <value> - Set feature value");
+            Add("command.fungame.feature.help", "Feature subcommands:\n  " +
+                                                "list - List all features\n  " +
+                                                "get <name> - Get feature value\n  " +
+                                                "set <name> <value> - Set feature value");
             Add("command.fungame.feature.unknown_subcommand", "Unknown feature subcommand: {0}");
             Add("command.fungame.feature.get_no_name", "Please specify a feature name to get");
             Add("command.fungame.feature.set_missing_params", "Please specify feature name and value to set");
@@ -77,7 +107,7 @@ namespace CustomFungamePack.Lang
             Add("log.fungame_check.author_not_string", "Author element {0} is not a string, removed");
             Add("log.fungame_check.author_empty", "Author array is empty, set default value");
             Add("log.fungame_check.version_format_warning", "Version format '{0}' is incorrect, will use default version '1.0.0'");
-            
+
             // Log - World Generation
             Add("log.world_generation.scene_type_set", "Set scene type to: {0}");
             Add("log.world_generation.no_features_enabled", "No features enabled");
@@ -90,9 +120,10 @@ namespace CustomFungamePack.Lang
             Add("log.world_generation.no_map_data", "Fungame {0} does not contain map data");
             Add("log.world_generation.no_content_type", "Fungame '{0}' has no content type defined (MapData, CustomStructures, or BuildModeSave)");
             Add("log.world_generation.no_commands", "No {0} enabled");
+            Add("log.world_generation.exited_to_vanilla", "Exited Fungame, returned to vanilla game");
             Add("log.world_generation.executing_command", "Executing {0}: {1}");
             Add("log.world_generation.executing_loop_command", "Executing loop {0}: {1}");
-            
+
             // Log - Validation
             Add("log.validation.map_invalid_type", "map field format is incorrect");
             Add("log.validation.map_missing_field", "Map missing required field: {0}");
@@ -117,7 +148,7 @@ namespace CustomFungamePack.Lang
             Add("log.validation.field_convert_to_array", "{0} field must be an array, converted to array");
             Add("log.validation.array_empty_default", "{0} array is empty, set default value");
             Add("log.validation.array_empty_removed", "{0} array is empty, removed");
-            
+
             // Log - Map Loader
             Add("log.map_loader.load_error", "Fungame or map data is null");
             Add("log.map_loader.invalid_format", "Invalid map format, missing map field");
@@ -142,13 +173,13 @@ namespace CustomFungamePack.Lang
             Add("log.map_loader.feature_enabled", "{0} enabled");
             Add("log.map_loader.feature_enabled_with_value", "{0} enabled: {1}");
             Add("log.map_loader.skip_generation", "Skipped {0} generation");
-            
+
             // Log - Error
             Add("log.error.no_fungame_file", "Cannot find fungame.json file: {0}");
             Add("log.error.no_valid_directories", "No valid Fungame directories, please check the Fungames folder");
             Add("log.error.custom_structures_mod_not_loaded", "Fungame '{0}' requires Custom Structures mod, but the mod is not loaded");
             Add("log.error.multiple_content_types", "Fungame '{0}' has multiple content types defined (MapData, CustomStructures, BuildModeSave). Only one type is allowed.");
-            
+
             // Log - Common
             Add("log.common.map", "Map");
             Add("log.common.item", "Item");
@@ -158,12 +189,12 @@ namespace CustomFungamePack.Lang
             Add("log.common.background", "Background");
             Add("log.common.startup_command", "Startup commands");
             Add("log.common.loop_command", "Loop command");
-            
+
             // Log - Mod Command
             Add("log.mod_command.empty_type", "Unknown command type");
             Add("log.mod_command.world_not_loaded", "World not loaded");
             Add("log.mod_command.no_waypoints", "No waypoints defined in current Fungame");
-            
+
             // Log - Custom Structures Loader
             Add("log.custom_structures_loader.loading", "Loading custom structure: {0}");
             Add("log.custom_structures_loader.failed", "Failed to load custom structure ({0}): {1}");
@@ -171,13 +202,15 @@ namespace CustomFungamePack.Lang
             Add("log.custom_structures_loader.not_found_custom_structures", "Custom structure file not found");
 
             // Log - Build Mode Save Loader
-            Add("log.build_mode_save_loader.loading", "Loading Build Mode save: {0} (blocks: {1}, liquids: {2}, backgrounds: {3})");
+            Add("log.build_mode_save_loader.loading",
+                "Loading Build Mode save: {0} (blocks: {1}, liquids: {2}, backgrounds: {3})");
             Add("log.build_mode_save_loader.failed", "Failed to load Build Mode save ({0}): {1}");
             Add("log.build_mode_save_loader.not_found_buildmode_save", "Build Mode save file not found");
             Add("log.build_mode_save_loader.bg_sprite_missing", "Background sprite not found: {0}");
 
             // Log - Map Loader (Build Mode)
-            Add("log.map_loader.build_mode_save_applied", "Build Mode save applied: {0} blocks, {1} liquids, {2} backgrounds, {3} failed");
+            Add("log.map_loader.build_mode_save_applied",
+                "Build Mode save applied: {0} blocks, {1} liquids, {2} backgrounds, {3} failed");
             Add("log.map_loader.not_found_buildmode_save", "Build Mode save file not found");
             Add("log.map_loader.bg_sprite_missing", "Background sprite not found: {0}");
         }

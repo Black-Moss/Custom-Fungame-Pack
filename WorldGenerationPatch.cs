@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Linq;
 using BepInEx.Logging;
 using HarmonyLib;
-using System.IO;
 using MossLib.Tool;
 using UnityEngine;
 using Console = MossLib.Tool.Console;
@@ -39,17 +39,11 @@ public static class WorldGenerationPatch
                 SetDefaultSceneType(WorldGeneration);
             }
         }
-        else if (FungameCheck.ValidDirectories.Count > 0)
+        else
         {
-            var firstFungameDir = FungameCheck.ValidDirectories[0];
-            var fungameFilePath = Path.Combine(firstFungameDir, "fungame.json");
-
-            if (File.Exists(fungameFilePath))
+            var fungame = FungameCheck.Fungames.FirstOrDefault();
+            if (fungame != null)
             {
-                var jsonContent = File.ReadAllText(fungameFilePath);
-                var fungame = Newtonsoft.Json.JsonConvert.DeserializeObject<Fungame>(jsonContent);
-
-                if (fungame == null) return;
                 CurrentFungame = fungame;
 
                 if (fungame.MapData != null)
@@ -64,14 +58,9 @@ public static class WorldGenerationPatch
             }
             else
             {
-                Log.Warning($"Cannot find fungame.json file: {fungameFilePath}", Logger);
+                Log.Warning("No valid Fungame directories, please check the Fungames folder", Logger);
                 SetDefaultSceneType(WorldGeneration);
             }
-        }
-        else
-        {
-            Log.Warning("No valid Fungame directories, please check the Fungames folder", Logger);
-            SetDefaultSceneType(WorldGeneration);
         }
     }
 
@@ -146,15 +135,9 @@ public static class WorldGenerationPatch
         {
             SpawnMap(fungame);
         }
-        else if (FungameCheck.ValidDirectories.Count > 0)
+        else
         {
-            var firstFungameDir = FungameCheck.ValidDirectories[0];
-            var fungameFilePath = Path.Combine(firstFungameDir, "fungame.json");
-
-            if (!File.Exists(fungameFilePath)) return;
-            var jsonContent = File.ReadAllText(fungameFilePath);
-            var fallbackFungame = Newtonsoft.Json.JsonConvert.DeserializeObject<Fungame>(jsonContent);
-
+            var fallbackFungame = FungameCheck.Fungames.FirstOrDefault();
             if (fallbackFungame?.MapData != null)
             {
                 SpawnMap(fallbackFungame);
@@ -171,14 +154,14 @@ public static class WorldGenerationPatch
                     Error("custom_structures_mod_not_loaded", fallbackFungame.Name);
                 }
             }
+            else if (fallbackFungame != null)
+            {
+                Warning("no_map_data", fallbackFungame.Name);
+            }
             else
             {
-                Warning("no_map_data", fallbackFungame?.Name ?? "Unknown");
+                Error("no_valid_directories");
             }
-        }
-        else
-        {
-            Error("no_valid_directories");
         }
     }
 

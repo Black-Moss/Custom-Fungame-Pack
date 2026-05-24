@@ -20,6 +20,53 @@ public static class FungameCheck
     public static Fungame CurrentFungame => WorldGenerationPatch.CurrentFungame;
     public static bool HasRunningFungame => CurrentFungame != null;
 
+    public static Fungame TemplateFungame = new()
+    {
+        Name = $"{Plugin.Name} Template",
+        Id = "t",
+        Version = Plugin.Version,
+        Author = ["Black_Moss"],
+        Description = "a map template",
+        Spawn = [3, 0],
+        Waypoints =
+        [
+            new()
+            {
+                Id = "default",
+                X = 0,
+                Y = 0
+            }
+        ],
+        // CommandData = new CommandData
+        // {
+        //     OnceCommands =
+        //     [
+        //         "alert true Start!"
+        //     ],
+        //     LoopCommands =
+        //     [
+        //         "alert false 10s!"
+        //     ],
+        //     LoopInterval = 0
+        // },
+        MapData = new MapData
+        {
+            Map =
+            [
+                "6666666666",
+                "6666666666",
+                "6660000666",
+                "6666666666",
+                "6666666666",
+            ],
+            Key =
+            {
+                { "6", 6 },
+                { "0", 0 }
+            }
+        }
+    };
+
     public static void Initialize()
     {
         _logger = Plugin.Logger;
@@ -54,52 +101,7 @@ public static class FungameCheck
             ValidDirectories.Add(fungamesDirectory);
         }
 
-        Fungames.Add(new Fungame
-        {
-            Name = $"{Plugin.Name} Template",
-            Id = "t",
-            Version = Plugin.Version,
-            Author = ["Black_Moss"],
-            Description = "a map template",
-            Spawn = [3, 0],
-            Waypoints =
-            [
-                new()
-                {
-                    Id = "default",
-                    X = 0,
-                    Y = 0
-                }
-            ],
-            // CommandData = new CommandData
-            // {
-            //     OnceCommands =
-            //     [
-            //         "alert true Start!"
-            //     ],
-            //     LoopCommands =
-            //     [
-            //         "alert false 10s!"
-            //     ],
-            //     LoopInterval = 0
-            // },
-            MapData = new MapData
-            {
-                Map =
-                [
-                    "6666666666",
-                    "6666666666",
-                    "6660000666",
-                    "6666666666",
-                    "6666666666",
-                ],
-                Key =
-                {
-                    { "6", 6 },
-                    { "0", 0 }
-                }
-            }
-        });
+        Fungames.Add(TemplateFungame);
 
         if (ValidDirectories.Count == 0) return;
         _logger.LogInfo($"Valid directories: {ValidDirectories.Count}, loading...");

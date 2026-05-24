@@ -324,7 +324,13 @@ public static class MapLoader
 
     public static void LogMapInfo()
     {
-        var fungame = FungameCheck.CurrentFungame;
+        var fungame = FungameCheck.Fungames.FirstOrDefault();
+        if (fungame == null)
+        {
+            Error("no_current_fungame");
+            return;
+        }
+
         Log.Divider();
         LogConsole("info.name", fungame.Name);
         LogConsole("info.id", fungame.Id);
@@ -353,7 +359,7 @@ public static class MapLoader
         for (int i = 0; i < fungames.Count; i++)
         {
             var fungame = fungames[i];
-            var isCurrent = fungame.Id == FungameCheck.CurrentFungame?.Id;
+            var isCurrent = fungame.Id == FungameCheck.Fungames.FirstOrDefault()?.Id;
             var marker = isCurrent ? "->" : "  ";
 
             LogConsole("list.item", marker, i + 1, fungame.Name, fungame.Id, fungame.Version, fungame.Authors);

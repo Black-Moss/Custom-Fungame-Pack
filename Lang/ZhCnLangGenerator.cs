@@ -170,6 +170,17 @@ namespace CustomFungamePack.Lang
             Add("log.custom_structures_loader.failed", "加载自定义结构({0})失败: {1}");
             Add("log.custom_structures_loader.not_found", "未找到 {0}, 反射失败");
             Add("log.custom_structures_loader.not_found_custom_structures", "未找到自定义结构文件");
+
+            // Log - Build Mode Save Loader
+            Add("log.build_mode_save_loader.loading", "正在加载 Build Mode 存档: {0} (方块: {1}, 液体: {2}, 背景: {3})");
+            Add("log.build_mode_save_loader.failed", "加载 Build Mode 存档({0})失败: {1}");
+            Add("log.build_mode_save_loader.not_found_buildmode_save", "未找到 Build Mode 存档文件");
+            Add("log.build_mode_save_loader.bg_sprite_missing", "未找到背景精灵: {0}");
+
+            // Log - Map Loader (Build Mode)
+            Add("log.map_loader.build_mode_save_applied", "Build Mode 存档应用完成: {0} 个方块, {1} 个液体, {2} 个背景, 失败 {3} 个");
+            Add("log.map_loader.not_found_buildmode_save", "未找到 Build Mode 存档文件");
+            Add("log.map_loader.bg_sprite_missing", "未找到背景精灵: {0}");
         }
     }
 }

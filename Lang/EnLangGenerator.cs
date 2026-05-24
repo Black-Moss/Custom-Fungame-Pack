@@ -169,6 +169,17 @@ namespace CustomFungamePack.Lang
             Add("log.custom_structures_loader.failed", "Failed to load custom structure ({0}): {1}");
             Add("log.custom_structures_loader.not_found", "{0} not found, reflection failed");
             Add("log.custom_structures_loader.not_found_custom_structures", "Custom structure file not found");
+
+            // Log - Build Mode Save Loader
+            Add("log.build_mode_save_loader.loading", "Loading Build Mode save: {0} (blocks: {1}, liquids: {2}, backgrounds: {3})");
+            Add("log.build_mode_save_loader.failed", "Failed to load Build Mode save ({0}): {1}");
+            Add("log.build_mode_save_loader.not_found_buildmode_save", "Build Mode save file not found");
+            Add("log.build_mode_save_loader.bg_sprite_missing", "Background sprite not found: {0}");
+
+            // Log - Map Loader (Build Mode)
+            Add("log.map_loader.build_mode_save_applied", "Build Mode save applied: {0} blocks, {1} liquids, {2} backgrounds, {3} failed");
+            Add("log.map_loader.not_found_buildmode_save", "Build Mode save file not found");
+            Add("log.map_loader.bg_sprite_missing", "Background sprite not found: {0}");
         }
     }
 }

@@ -102,7 +102,7 @@ public class ModCommand : ModCommandBase
             .ToList();
 
         var featureNames = FeatureProperties
-            .Select(p => p.Name)
+            .Select(p => p.Name.ToLowerInvariant())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 

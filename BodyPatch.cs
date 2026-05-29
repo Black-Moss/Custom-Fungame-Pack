@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using System.Reflection;
-using UnityEngine;
+using MossLib.Tool;
 
 namespace CustomFungamePack;
 
@@ -21,7 +21,7 @@ public static class BodyPatch
                                          && JumpCooldownField != null
                                          && FirstWallJumpField != null;
 
-    private static readonly KeyCode JumpKey = KeyBinds.GetBind("jump");
+    private static readonly bool JumpKey = Key.IsKeyDown("jump");
 
     private static int _jumpCount;
     private static int _climbCount;
@@ -50,7 +50,7 @@ public static class BodyPatch
             return;
 
         // 没按跳 到头了
-        if (!Input.GetKeyDown(JumpKey) || _jumpCount >= Feature.JumpLimit)
+        if (!JumpKey || _jumpCount >= Feature.JumpLimit)
             return;
 
         // 恢复
@@ -69,7 +69,7 @@ public static class BodyPatch
         }
 
         // 没按跳 到头了
-        if (!Input.GetKeyDown(JumpKey) || _climbCount >= Feature.ClimbLimit)
+        if (!JumpKey || _climbCount >= Feature.ClimbLimit)
             return;
 
         // 恢复

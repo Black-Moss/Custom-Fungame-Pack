@@ -224,9 +224,9 @@ public static class FungameCheck
             bool hasCustomStructuresMod = Type.GetType("Custom_Structures.Plugin, Custom Structures") != null;
             bool hasCustomStructuresField =
                 jsonObject.ContainsKey("custom_structures") && jsonObject["custom_structures"] != null
-                && jsonObject["custom_structures"].Type != JTokenType.Null;
+                                                            && jsonObject["custom_structures"].Type != JTokenType.Null;
             bool hasMapData = jsonObject.ContainsKey("map_data") && jsonObject["map_data"] != null
-                && jsonObject["map_data"].Type != JTokenType.Null;
+                                                                 && jsonObject["map_data"].Type != JTokenType.Null;
             bool hasBuildModeSave = jsonObject.ContainsKey("build_mode_save")
                                     && jsonObject["build_mode_save"] != null
                                     && jsonObject["build_mode_save"].Type != JTokenType.Null

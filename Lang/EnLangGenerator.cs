@@ -80,11 +80,14 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.save.success", "Fungame '{0}' saved to: {1}");
             Add("command.fungame.save.failed", "Failed to save Fungame '{0}': {1}");
             Add("command.fungame.save.no_directory", "Current Fungame has no associated directory path, cannot save");
-            Add("command.fungame.save.invalid_coordinates", "Invalid coordinate format. Use Vector2 format: \"x,y\" (e.g. \"86,-11\")");
+            Add("command.fungame.save.invalid_coordinates",
+                "Invalid coordinate format. Use Vector2 format: \"x,y\" (e.g. \"86,-11\")");
             Add("command.fungame.save.area_empty", "Specified area is outside world bounds or empty");
-            Add("command.fungame.save.area_success", "Area block map saved: ({0},{1}) to ({2},{3}), size {4}x{5}, {6} block types → {7}");
+            Add("command.fungame.save.area_success",
+                "Area block map saved: ({0},{1}) to ({2},{3}), size {4}x{5}, {6} block types → {7}");
             Add("command.fungame.save.target_not_found", "Target Fungame folder '{0}' not found");
-            Add("command.fungame.save.missing_end_coord", "Missing end coordinate, please provide both coordinates (e.g. fg save 86,-11 2,45)");
+            Add("command.fungame.save.missing_end_coord",
+                "Missing end coordinate, please provide both coordinates (e.g. fg save 86,-11 2,45)");
 
             // Command - Fungame - Feature
             Add("command.fungame.feature.help", "Feature subcommands:\n  " +
@@ -106,7 +109,8 @@ namespace CustomFungamePack.Lang
             Add("log.fungame_check.id_format_warning", "ID format is incorrect, will be automatically corrected");
             Add("log.fungame_check.author_not_string", "Author element {0} is not a string, removed");
             Add("log.fungame_check.author_empty", "Author array is empty, set default value");
-            Add("log.fungame_check.version_format_warning", "Version format '{0}' is incorrect, will use default version '1.0.0'");
+            Add("log.fungame_check.version_format_warning",
+                "Version format '{0}' is incorrect, will use default version '1.0.0'");
 
             // Log - World Generation
             Add("log.world_generation.scene_type_set", "Set scene type to: {0}");
@@ -118,7 +122,8 @@ namespace CustomFungamePack.Lang
             Add("log.world_generation.initializing_world", "Initializing Fungame map...");
             Add("log.world_generation.loading_fungame_map", "Loading Fungame map: {0}");
             Add("log.world_generation.no_map_data", "Fungame {0} does not contain map data");
-            Add("log.world_generation.no_content_type", "Fungame '{0}' has no content type defined (MapData, CustomStructures, or BuildModeSave)");
+            Add("log.world_generation.no_content_type",
+                "Fungame '{0}' has no content type defined (MapData, CustomStructures, or BuildModeSave)");
             Add("log.world_generation.no_commands", "No {0} enabled");
             Add("log.world_generation.exited_to_vanilla", "Exited Fungame, returned to vanilla game");
             Add("log.world_generation.executing_command", "Executing {0}: {1}");
@@ -132,9 +137,12 @@ namespace CustomFungamePack.Lang
             Add("log.validation.map_row_not_string", "Map map row {0} must be a string");
             Add("log.validation.map_item_row_not_array", "Map items row {0} must be an array");
             Add("log.validation.map_item_not_string", "Map items[{0}][{1}] must be a string");
-            Add("log.validation.multiple_content_types", "Cannot use multiple content types (map_data, custom_structures, build_mode_save) at the same time, only one is allowed");
-            Add("log.validation.missing_content_type", "Missing content type (map_data, custom_structures, or build_mode_save)");
-            Add("log.validation.custom_structures_without_mod", "Detected custom_structures field, but Custom Structures mod is not installed. Please install the mod first.");
+            Add("log.validation.multiple_content_types",
+                "Cannot use multiple content types (map_data, custom_structures, build_mode_save) at the same time, only one is allowed");
+            Add("log.validation.missing_content_type",
+                "Missing content type (map_data, custom_structures, or build_mode_save)");
+            Add("log.validation.custom_structures_without_mod",
+                "Detected custom_structures field, but Custom Structures mod is not installed. Please install the mod first.");
             Add("log.validation.features_invalid_type", "features field must be an array or object");
             Add("log.validation.features_empty", "features array is empty, will be ignored");
             Add("log.validation.features_element_invalid", "features element {0} format is incorrect, skipped");
@@ -143,7 +151,8 @@ namespace CustomFungamePack.Lang
             Add("log.validation.field_missing_default", "Missing required field: {0}, using default value \"{1}\"");
             Add("log.validation.field_null_default", "Field is null: {0}, using default value \"{1}\"");
             Add("log.validation.field_empty_string_default", "Field is empty string: {0}, using default value \"{1}\"");
-            Add("log.validation.field_must_be_array_default", "Missing required field: {0}, using default value [\"{1}\"]");
+            Add("log.validation.field_must_be_array_default",
+                "Missing required field: {0}, using default value [\"{1}\"]");
             Add("log.validation.field_null_array_default", "Field is null: {0}, using default value [\"{1}\"]");
             Add("log.validation.field_convert_to_array", "{0} field must be an array, converted to array");
             Add("log.validation.array_empty_default", "{0} array is empty, set default value");
@@ -157,7 +166,8 @@ namespace CustomFungamePack.Lang
             Add("log.map_loader.load_success", "Successfully loaded map: start position({0}, {1}), size({2}x{3})");
             Add("log.map_loader.load_failed", "Failed to load map: {0}");
             Add("log.map_loader.place_failed", "Failed to place {2} {3} at ({0}, {1}): {4}");
-            Add("log.map_loader.multiple_blocks_in_list", "Multiple blocks detected in list at ({0}, {1}), only the first one will be generated");
+            Add("log.map_loader.multiple_blocks_in_list",
+                "Multiple blocks detected in list at ({0}, {1}), only the first one will be generated");
             Add("log.map_loader.unsupported_value_type", "Unsupported value type: {0}, position ({1}, {2})");
             Add("log.map_loader.nested_structure_not_supported", "Nested structure not supported, position ({0}, {1})");
             Add("log.map_loader.unexpected_token_type", "Unexpected token type: {0}, position ({1}, {2})");
@@ -168,7 +178,8 @@ namespace CustomFungamePack.Lang
             Add("log.map_loader.scene_reloaded", "Scene reloaded");
             Add("log.map_loader.scene_reload_failed", "Failed to reload scene: {0}");
             Add("log.map_loader.no_current_fungame", "No current Fungame configuration loaded");
-            Add("log.map_loader.custom_structures_not_supported", "Custom structures are not supported for map loading: {0}");
+            Add("log.map_loader.custom_structures_not_supported",
+                "Custom structures are not supported for map loading: {0}");
             Add("log.map_loader.no_features_enabled", "No features enabled");
             Add("log.map_loader.feature_enabled", "{0} enabled");
             Add("log.map_loader.feature_enabled_with_value", "{0} enabled: {1}");
@@ -177,8 +188,10 @@ namespace CustomFungamePack.Lang
             // Log - Error
             Add("log.error.no_fungame_file", "Cannot find fungame.json file: {0}");
             Add("log.error.no_valid_directories", "No valid Fungame directories, please check the Fungames folder");
-            Add("log.error.custom_structures_mod_not_loaded", "Fungame '{0}' requires Custom Structures mod, but the mod is not loaded");
-            Add("log.error.multiple_content_types", "Fungame '{0}' has multiple content types defined (MapData, CustomStructures, BuildModeSave). Only one type is allowed.");
+            Add("log.error.custom_structures_mod_not_loaded",
+                "Fungame '{0}' requires Custom Structures mod, but the mod is not loaded");
+            Add("log.error.multiple_content_types",
+                "Fungame '{0}' has multiple content types defined (MapData, CustomStructures, BuildModeSave). Only one type is allowed.");
 
             // Log - Common
             Add("log.common.map", "Map");

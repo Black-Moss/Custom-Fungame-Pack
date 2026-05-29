@@ -303,7 +303,9 @@ public class ModCommand : ModCommandBase
                     return loaded;
                 }
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         var folderName = Path.GetFileName(targetPath);
@@ -366,7 +368,7 @@ public class ModCommand : ModCommandBase
         var blockIds = new ushort[regionW, regionH];
 
         var uniqueBlockIds = new List<ushort>();
-        var blockToChar   = new Dictionary<ushort, string>();
+        var blockToChar = new Dictionary<ushort, string>();
 
         uniqueBlockIds.Add(0);
         blockToChar[0] = "0";
@@ -400,6 +402,7 @@ public class ModCommand : ModCommandBase
                     ? ch[0]
                     : '0';
             }
+
             mapRows[y] = new string(chars);
         }
 
@@ -416,7 +419,7 @@ public class ModCommand : ModCommandBase
             Key = keyDict
         };
         fungame.CustomStructures = null;
-        fungame.BuildModeSave    = null;
+        fungame.BuildModeSave = null;
 
         var json = JsonConvert.SerializeObject(fungame, Formatting.Indented,
             new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });

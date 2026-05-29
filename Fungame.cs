@@ -125,7 +125,7 @@ public class XpData
         ExpStr = MinStr;
         ExpRes = MinRes;
         ExpInt = MinInt;
-        
+
         MinStr = Skills.GetExperienceForLevel(StrXp);
         MaxStr = Skills.GetExperienceForLevel(StrXp + 1);
         MinRes = Skills.GetExperienceForLevel(ResXp);
@@ -142,13 +142,13 @@ public class XpData
     public float ExpStr { get; set; }
     public float ExpRes { get; set; }
     public float ExpInt { get; set; }
-    
+
     public int MinStr { get; set; }
     public int MaxStr { get; set; }
-    
+
     public int MinRes { get; set; }
     public int MaxRes { get; set; }
-    
+
     public int MinInt { get; set; }
     public int MaxInt { get; set; }
     public float XpMultiple { get; set; } = 1f;

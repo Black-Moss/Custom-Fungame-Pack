@@ -118,7 +118,8 @@ namespace CustomFungamePack.Lang
             Add("log.world_generation.initializing_world", "初始化Fungame地图...");
             Add("log.world_generation.loading_fungame_map", "正在加载Fungame地图: {0}");
             Add("log.world_generation.no_map_data", "Fungame {0} 不包含地图数据");
-            Add("log.world_generation.no_content_type", "Fungame '{0}' 未定义任何内容类型（MapData、CustomStructures 或 BuildModeSave）");
+            Add("log.world_generation.no_content_type",
+                "Fungame '{0}' 未定义任何内容类型（MapData、CustomStructures 或 BuildModeSave）");
             Add("log.world_generation.no_commands", "未启用任何 {0}");
             Add("log.world_generation.exited_to_vanilla", "已退出 Fungame，返回原版游戏");
             Add("log.world_generation.executing_command", "执行 {0}: '{1}'");
@@ -132,9 +133,11 @@ namespace CustomFungamePack.Lang
             Add("log.validation.map_row_not_string", "地图 map 第 {0} 行必须是字符串");
             Add("log.validation.map_item_row_not_array", "地图 items 第 {0} 行必须是数组");
             Add("log.validation.map_item_not_string", "地图 items[{0}][{1}] 必须是字符串");
-            Add("log.validation.multiple_content_types", "不能同时使用多种内容类型（map_data、custom_structures、build_mode_save），只能选择一种");
+            Add("log.validation.multiple_content_types",
+                "不能同时使用多种内容类型（map_data、custom_structures、build_mode_save），只能选择一种");
             Add("log.validation.missing_content_type", "缺少内容类型（map_data、custom_structures 或 build_mode_save）");
-            Add("log.validation.custom_structures_without_mod", "检测到 custom_structures 字段，但未安装自定义结构模组（Custom Structures），请先安装该模组");
+            Add("log.validation.custom_structures_without_mod",
+                "检测到 custom_structures 字段，但未安装自定义结构模组（Custom Structures），请先安装该模组");
             Add("log.validation.features_invalid_type", "features 字段必须是数组或对象");
             Add("log.validation.features_empty", "features 数组为空，将被忽略");
             Add("log.validation.features_element_invalid", "features 第 {0} 个元素格式不正确，已跳过");

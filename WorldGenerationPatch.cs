@@ -4,7 +4,6 @@ using BepInEx.Logging;
 using HarmonyLib;
 using MossLib.Tool;
 using UnityEngine;
-using Console = MossLib.Tool.Console;
 
 namespace CustomFungamePack;
 
@@ -92,7 +91,7 @@ public static class WorldGenerationPatch
 
         Physics2D.gravity = new Vector2(0, features.Gravity);
         if (CurrentFungame.Feature.Fullbright)
-            Console.ConsoleScript.fullBright = CurrentFungame.Feature.Fullbright;
+            GameConsole.Instance.fullBright = CurrentFungame.Feature.Fullbright;
 
         HandleLoopCommands();
     }
@@ -227,7 +226,7 @@ public static class WorldGenerationPatch
             foreach (var command in commands.OnceCommands)
             {
                 MoreLogs("executing_command", ModLocale.Log("common.startup_command"), command);
-                Console.RunCommand(command);
+                GameConsole.RunCommand(command);
             }
         }
 
@@ -251,7 +250,7 @@ public static class WorldGenerationPatch
         foreach (var command in loopCommands)
         {
             MoreLogs("executing_loop_command", ModLocale.Log("common.loop_command"), command);
-            Console.RunCommand(command);
+            GameConsole.RunCommand(command);
         }
     }
 
@@ -259,19 +258,19 @@ public static class WorldGenerationPatch
     private static void SetXp(Skills __instance)
     {
         var xpData = FungameCheck.CurrentFungame.XpData;
-        
+
         __instance.INT = xpData.IntXp;
         __instance.RES = xpData.ResXp;
         __instance.STR = xpData.StrXp;
-        
+
         __instance.expINT = xpData.ExpInt;
         __instance.expRES = xpData.ExpRes;
         __instance.expSTR = xpData.ExpStr;
-        
+
         __instance.minINT = xpData.MinInt;
         __instance.minRES = xpData.MinRes;
         __instance.minSTR = xpData.MinStr;
-        
+
         __instance.maxINT = xpData.MaxInt;
         __instance.maxRES = xpData.MaxRes;
         __instance.maxSTR = xpData.MaxStr;

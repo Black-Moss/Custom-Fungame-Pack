@@ -15,7 +15,6 @@ namespace CustomFungamePack.Lang
             Add("feature.skip_terrain", "跳过地形");
             Add("feature.skip_structures", "跳过结构");
             Add("feature.skip_background", "跳过背景");
-            Add("feature.skip_background", "跳过背景");
             Add("feature.jump_limit", "跳跃极限");
             Add("feature.climb_limit", "攀爬极限");
 
@@ -33,7 +32,6 @@ namespace CustomFungamePack.Lang
                 "feature - 管理特性 (list/get/set)\n  " +
                 "waypoint- 管理路径点 (list/get)\n  " +
                 "save    - 保存当前Fungame到本地");
-            Add("command.fungame.reload", "正在重新加载地图...");
 
             // Command - Fungame - Info
             Add("command.fungame.info.name", "名称: {0}");
@@ -92,7 +90,6 @@ namespace CustomFungamePack.Lang
                 "get <name> - 获取特性值\n  " +
                 "set <name> <value> - 设置特性值");
             Add("command.fungame.feature.unknown_subcommand", "未知的特性子命令：{0}");
-            Add("command.fungame.feature.get_no_name", "请指定要获取的特性名称");
             Add("command.fungame.feature.set_missing_params", "请指定特性名称和值来设置");
             Add("command.fungame.feature.list_header", "当前特性设置：");
             Add("command.fungame.feature.item", "  {0}: {1}");
@@ -100,7 +97,6 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.feature.set_success", "特性 '{0}' 已设置为 {1}");
             Add("command.fungame.feature.not_found", "未找到特性：{0}");
             Add("command.fungame.feature.invalid_value", "{0} 的值无效：{1}");
-            Add("command.fungame.feature.invalid_bool", "{0} 的布尔值无效：{1}（使用 true/false）");
 
             // Log - Fungame Check
             Add("log.fungame_check.id_format_warning", "ID格式不正确，将自动修正");

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -20,6 +21,8 @@ public class ModCommand : ModCommandBase
 
     private static readonly PropertyInfo[] FeatureProperties =
         typeof(Feature).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+    private static bool _autofillRegistered;
 
     [HarmonyPatch("RegisterAllCommands")]
     [HarmonyPostfix]
@@ -65,9 +68,11 @@ public class ModCommand : ModCommandBase
                 "fg",
                 Fungame("description"),
                 ExecuteFungameCommand,
-                argAutofill,
+                new Dictionary<int, List<string>>(argAutofill),
                 paramDescriptions)
             );
+
+            RegisterDynamicAutoFills();
         }
         catch (Exception ex)
         {
@@ -75,53 +80,111 @@ public class ModCommand : ModCommandBase
         }
     }
 
+    private static void RegisterDynamicAutoFills()
+    {
+        if (_autofillRegistered)
+            return;
+
+        var targetCommands = ConsoleScript.Commands
+            .Where(c => c != null && c.action == ExecuteFungameCommand)
+            .ToList();
+
+        if (targetCommands.Count == 0)
+            return;
+
+        var fungameNames = FungameCheck.Fungames?
+            .Where(f => f != null)
+            .Select(f => f.Name)
+            .Where(name => !string.IsNullOrEmpty(name))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var featureNames = FeatureProperties
+            .Select(p => GetFeatureDisplayName(p.Name))
+            .Where(name => !string.IsNullOrEmpty(name))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if ((fungameNames is not { Count: > 0 }) && featureNames.Count == 0)
+        {
+            _autofillRegistered = true;
+            return;
+        }
+
+        foreach (var cmd in targetCommands)
+        {
+            if (fungameNames is { Count: > 0 })
+            {
+                if (!cmd.argAutofill.ContainsKey(1))
+                    cmd.argAutofill[1] = new List<string>();
+
+                cmd.argAutofill[1].AddRange(fungameNames);
+            }
+
+            if (featureNames.Count > 0)
+            {
+                if (!cmd.argAutofill.ContainsKey(2))
+                    cmd.argAutofill[2] = new List<string>();
+
+                cmd.argAutofill[2].AddRange(featureNames);
+            }
+        }
+
+        _autofillRegistered = true;
+    }
+
     private static void ExecuteFungameCommand(string[] args)
     {
         if (args.Length == 1)
-            InfoFungame("help");
-        switch (args[1])
         {
-            case "help":
-                InfoFungame("help");
-                break;
-            case "reload":
-                if (!EnsureWorldLoaded()) return;
-                CheckArg(args, 1);
-                MapLoader.ReloadFungameFromDisk(FungameCheck.CurrentFungame);
-                MapLoader.ReloadMap(FungameCheck.CurrentFungame);
-                break;
-            case "info":
-                CheckArg(args, 1);
-                MapLoader.LogMapInfo();
-                break;
-            case "spawn":
-                if (!EnsureWorldLoaded()) return;
-                CheckArg(args, 1);
-                Spawn();
-                break;
-            case "select":
-                CheckArg(args, 2);
-                Select(args[2]);
-                break;
-            case "list":
-                CheckArg(args, 1);
-                if (args.Length > 2)
-                    Select(args[2]);
-                else
-                    MapLoader.LogFungameList();
-                break;
-            case "feature":
-                HandleFeature(args);
-                break;
-            case "waypoint":
-                HandleWaypoint(args);
-                break;
-            case "save":
-                HandleSave(args);
-                break;
-            case "exit":
-                HandleExit(args);
-                break;
+            InfoFungame("help");
+        }
+        else
+        {
+            switch (args[1])
+            {
+                case "help":
+                    InfoFungame("help");
+                    break;
+                case "reload":
+                    if (!EnsureWorldLoaded()) return;
+                    CheckArg(args, 1);
+                    MapLoader.ReloadFungameFromDisk(FungameCheck.CurrentFungame);
+                    MapLoader.ReloadMap(FungameCheck.CurrentFungame);
+                    break;
+                case "info":
+                    CheckArg(args, 1);
+                    MapLoader.LogMapInfo();
+                    break;
+                case "spawn":
+                    if (!EnsureWorldLoaded()) return;
+                    CheckArg(args, 1);
+                    Spawn();
+                    break;
+                case "select":
+                    CheckArg(args, 2);
+                    Select(string.Join(" ", args, 2, args.Length - 2));
+                    break;
+                case "list":
+                    CheckArg(args, 1);
+                    if (args.Length > 2)
+                        Select(string.Join(" ", args, 2, args.Length - 2));
+                    else
+                        MapLoader.LogFungameList();
+                    break;
+                case "feature":
+                    HandleFeature(args);
+                    break;
+                case "waypoint":
+                    HandleWaypoint(args);
+                    break;
+                case "save":
+                    HandleSave(args);
+                    break;
+                case "exit":
+                    HandleExit(args);
+                    break;
+            }
         }
     }
 
@@ -538,46 +601,27 @@ public class ModCommand : ModCommandBase
 
         if (args.Length < 3)
         {
+            InfoFungame("feature.help");
             ListFeatures(fungame.Feature);
             return;
         }
 
         var subCommand = args[2].ToLower();
 
-        switch (subCommand)
+
+        if (args.Length < 5)
         {
-            case "list":
-                ListFeatures(fungame.Feature);
-                break;
-            case "help":
-                InfoFungame("feature.help");
-                break;
-            case "get":
-                if (args.Length < 4)
-                {
-                    InfoFungame("feature.get_no_name");
-                    return;
-                }
+            if (args.Length < 4)
+            {
+                InfoFungame("feature.set_missing_params");
+                return;
+            }
 
-                GetFeature(fungame.Feature, args[3]);
-                break;
-            default:
-                if (args.Length < 5)
-                {
-                    if (args.Length < 4)
-                    {
-                        InfoFungame("feature.set_missing_params");
-                        return;
-                    }
-
-                    SetFeature(fungame.Feature, args[2], args[3]);
-                }
-                else
-                {
-                    InfoFungame("feature.unknown_subcommand", subCommand);
-                }
-
-                break;
+            SetFeature(fungame.Feature, args[2], args[3]);
+        }
+        else
+        {
+            InfoFungame("feature.unknown_subcommand", subCommand);
         }
     }
 
@@ -651,6 +695,10 @@ public class ModCommand : ModCommandBase
         foreach (var prop in FeatureProperties)
         {
             if (prop.Name.Equals(featureName, StringComparison.OrdinalIgnoreCase))
+                return prop;
+
+            var displayName = GetFeatureDisplayName(prop.Name);
+            if (displayName.Equals(featureName, StringComparison.OrdinalIgnoreCase))
                 return prop;
         }
 

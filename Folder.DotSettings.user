@@ -137,6 +137,7 @@
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CDownloads_005Cdll_005CUnityEngine_002EUI_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CSteamLibrary_005Csteamapps_005Ccommon_005CCasualties_0020Unknown_0020Demo_005CBepInEx_005Ccore_005C0Harmony_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CSteamLibrary_005Csteamapps_005Ccommon_005CCasualties_0020Unknown_0020Demo_005CBepInEx_005Ccore_005CBepInEx_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CSteamLibrary_005Csteamapps_005Ccommon_005CCasualties_0020Unknown_0020Demo_005CBepInEx_005CCustomStructures_005CCustom_0020Structures_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CSteamLibrary_005Csteamapps_005Ccommon_005CCasualties_0020Unknown_0020Demo_005CBepInEx_005Cplugins_005CBuildMod_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CSteamLibrary_005Csteamapps_005Ccommon_005CCasualties_0020Unknown_0020Demo_005CBepInEx_005Cplugins_005CKrokMP_005CKrokoshaCasualtiesMP_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=F_003A_005CSteamLibrary_005Csteamapps_005Ccommon_005CCasualties_0020Unknown_0020Demo_005CBepInEx_005Cplugins_005CKrokMP_005CLiteNetLib_002Edll/@EntryIndexedValue">True</s:Boolean>
@@ -304,7 +305,6 @@
 	
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Assembly-CSharp.dll" /&gt;&#xD;
-  &lt;Assembly Path="E:\Downloads\CustomStructures\Custom Structures.dll" /&gt;&#xD;
   &lt;Assembly Path="E:\MossProject\CasualtiesUnknown\Moss-Lib\bin\Debug\net472\MossLib.dll" /&gt;&#xD;
   &lt;Assembly Path="F:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\plugins\BuildMod.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>

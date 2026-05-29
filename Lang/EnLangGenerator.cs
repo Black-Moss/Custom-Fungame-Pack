@@ -32,7 +32,6 @@ namespace CustomFungamePack.Lang
                 "feature - Manage features (list/get/set)\n  " +
                 "waypoint- Manage waypoints (list/get)\n  " +
                 "save    - Save current Fungame to local file");
-            Add("command.fungame.reload", "Reloading map...");
 
             // Command - Fungame - Info
             Add("command.fungame.info.name", "Name: {0}");
@@ -95,7 +94,6 @@ namespace CustomFungamePack.Lang
                                                 "get <name> - Get feature value\n  " +
                                                 "set <name> <value> - Set feature value");
             Add("command.fungame.feature.unknown_subcommand", "Unknown feature subcommand: {0}");
-            Add("command.fungame.feature.get_no_name", "Please specify a feature name to get");
             Add("command.fungame.feature.set_missing_params", "Please specify feature name and value to set");
             Add("command.fungame.feature.list_header", "Current feature settings:");
             Add("command.fungame.feature.item", "  {0} ({1}): {2}");
@@ -103,7 +101,6 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.feature.set_success", "Feature '{0}' set to {1}");
             Add("command.fungame.feature.not_found", "Feature not found: {0}");
             Add("command.fungame.feature.invalid_value", "Invalid value for {0}: {1}");
-            Add("command.fungame.feature.invalid_bool", "Invalid boolean value for {0}: {1} (use true/false)");
 
             // Log - Fungame Check
             Add("log.fungame_check.id_format_warning", "ID format is incorrect, will be automatically corrected");
@@ -225,7 +222,6 @@ namespace CustomFungamePack.Lang
             Add("log.map_loader.build_mode_save_applied",
                 "Build Mode save applied: {0} blocks, {1} liquids, {2} backgrounds, {3} failed");
             Add("log.map_loader.not_found_buildmode_save", "Build Mode save file not found");
-            Add("log.map_loader.bg_sprite_missing", "Background sprite not found: {0}");
         }
     }
 }

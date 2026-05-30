@@ -96,6 +96,7 @@ public class Feature
     [JsonProperty("jumppad")] public JumpPadData JumpPadData { get; set; }
     [JsonProperty("turret")] public TurretData TurretData { get; set; }
     [JsonProperty("sound_cannon")] public SoundCannonData SoundCannonData { get; set; }
+    [JsonProperty("spike_stabber")] public SpikeStabberData SpikeStabberData { get; set; }
 }
 
 [UsedImplicitly]
@@ -122,8 +123,18 @@ public class TurretData
 public class SoundCannonData
 {
     [JsonProperty("max_distance")] public float MaxDistance { get; set; } = 50f;
-    [JsonProperty("charge_time")] public float ChargeTime { get; set; } = 5f;
+    [JsonProperty("cooldown")] public float Cooldown { get; set; } = 5f;
     [JsonProperty("undestroy")] public bool Undestroy { get; set; }
+}
+
+[UsedImplicitly]
+public class SpikeStabberData
+{
+    [JsonProperty("damage_mult")] public float DamageMult { get; set; } = 1f;
+    [JsonProperty("undestroy")] public bool Undestroy { get; set; }
+    [JsonProperty("no_light")] public bool NoLight { get; set; }
+    [JsonProperty("sound")] public string Sound { get; set; }
+    [JsonProperty("cooldown")] public float Cooldown { get; set; } = 5f;
 }
 
 [UsedImplicitly]

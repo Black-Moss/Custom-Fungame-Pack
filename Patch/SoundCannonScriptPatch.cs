@@ -62,7 +62,7 @@ public class SoundCannonScriptPatch
                     ChargingSince[__instance] = Time.time;
 
                 if (ChargingSince.TryGetValue(__instance, out float startTime) &&
-                    Time.time - startTime >= data.ChargeTime)
+                    Time.time - startTime >= data.Cooldown)
                 {
                     // Force chargeTime past the 5.0 threshold so next frame fires
                     ChargeTimeField?.SetValue(__instance, 5.1f);

@@ -54,35 +54,32 @@ public class MineScriptPatch
             return true;
         __instance.timeSincePressed += Time.deltaTime;
 
-        var explosionDelay = MineData?.ExplosionDelay ?? 0.8f;
+        var explosionDelay = MineData?.Cooldown ?? 0.8f;
         bool exploded = (bool)ExplodedField.GetValue(__instance);
         bool mineUndestroy = MineData?.Undestroy ?? false;
 
-        // For indestructible mines: after cooldown, reset exploded so it can re-trigger
         if (mineUndestroy && exploded && __instance.timeSincePressed > explosionDelay)
         {
             ExplodedField.SetValue(__instance, false);
             return false;
         }
 
-        // Skip if already exploded or not enough time has passed
         if (exploded || !(__instance.timeSincePressed > explosionDelay))
             return false;
 
-        // --- Explosion trigger ---
         ExplodedField.SetValue(__instance, true);
 
         if (mineUndestroy)
         {
-            __instance.build.health = 99999f;         // Prevent damage from destroying
-            PressedField.SetValue(__instance, false);  // Release trigger for re-trigger
+            __instance.build.health = 99999f;
+            PressedField.SetValue(__instance, false);
         }
         else
         {
-            __instance.build.health = 100f;            // Allows explosion to destroy it
+            __instance.build.health = 100f;
         }
 
-        __instance.timeSincePressed = 0f; // Reset timer to prevent immediate re-explosion
+        __instance.timeSincePressed = 0f;
 
         var explosionParams = CreateMineExplosionParams(__instance.transform.position + Vector3.up);
         WorldGeneration.CreateExplosion(explosionParams);
@@ -94,7 +91,6 @@ public class MineScriptPatch
     [HarmonyPrefix]
     public static bool OnDestroyPrefix(MineScript __instance)
     {
-        // Indestructible mines are never destroyed via OnDestroy
         if (MineData?.Undestroy == true)
             return false;
 

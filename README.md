@@ -49,8 +49,8 @@ _A custom map/gamemode ("Fungame") management system for **Casualties Unknown**.
 
 1. Install [BepInEx 5.x](https://github.com/BepInEx/BepInEx) for Casualties Unknown.
 2. Install [Moss Lib](https://github.com/Black-Moss/Moss-Lib).
-3. Download the latest `CustomFungamePack.dll` from the [Releases](https://github.com/Black-Moss/Custom-Fungame-Pack/releases) page.
-4. Place `CustomFungamePack.dll` into your `BepInEx/plugins/` folder.
+3. Download the latest release from the [Releases](https://github.com/Black-Moss/Custom-Fungame-Pack/releases) page.
+4. Extract the downloaded archive and place the entire `Custom Fungame Pack` folder into your `BepInEx/plugins/` folder.
 5. Create a `Fungames/` folder in your game's root directory (next to `CasualtiesUnknown.exe`).
 6. Place your Fungame folders inside `Fungames/` (each containing a `fungame.json`).
 
@@ -61,12 +61,16 @@ Casualties Unknown Demo/
 ├── BepInEx/
 │   └── plugins/
 │       ├── Moss Lib
-│       │   ├── Moss Lib.dll
+│       │   └── Moss Lib.dll
 │       └── Custom Fungame Pack
-│           └── CustomFungamePack.dll
+│           ├── Lang/
+│           ├── CustomFungamePack.dll
+│           ├── LICENSE.md
+│           ├── README.md
+│           └── README_ZH.md
 ├── Fungames/
 │   ├── MyCustomMap/
-│   │   ├── fungame.json
+│   │   └── fungame.json
 │   └── AnotherMap/
 │       └── fungame.json
 └── CasualtiesUnknown.exe

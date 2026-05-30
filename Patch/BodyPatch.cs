@@ -1,8 +1,8 @@
-﻿using HarmonyLib;
-using System.Reflection;
+﻿using System.Reflection;
+using HarmonyLib;
 using MossLib.Tool;
 
-namespace CustomFungamePack;
+namespace CustomFungamePack.Patch;
 
 [HarmonyPatch(typeof(Body))]
 public static class BodyPatch

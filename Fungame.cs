@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Linq;
 using JetBrains.Annotations;
@@ -23,7 +24,7 @@ public class Fungame
     [JsonProperty("spawn")] public float[] Spawn { get; set; } = [0, 0];
     [JsonProperty("x")] public int X { get; set; }
     [JsonProperty("y")] public int Y { get; set; }
-    [JsonProperty("xp")] public XpData XpData { get; set; }
+    [JsonProperty("xp")] public XpData XpData { get; set; } = new();
 
     [JsonProperty("type")]
     [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
@@ -64,13 +65,16 @@ public class Fungame
         : "None";
 
     [JsonIgnore]
-    public Vector2 SpawnPosition => new(
-        Spawn is { Length: >= 2 }
-            ? Spawn[0]
-            : 0,
-        Spawn is { Length: >= 2 }
-            ? Spawn[1]
-            : 0);
+    public Vector2 SpawnPosition
+    {
+        get
+        {
+            if (Spawn is { Length: >= 2 })
+                return new Vector2(Spawn[0], Spawn[1]);
+
+            return Vector2.zero;
+        }
+    }
 }
 
 [UsedImplicitly]
@@ -88,31 +92,73 @@ public class Feature
     public float Gravity { get; set; } = Physics2D.gravity.y;
     public int JumpLimit { get; set; } = 0;
     public int ClimbLimit { get; set; } = 0;
+    public bool MineUndestroy { get; set; }
+    public ExplosionParamsData MineExplosionParamsData { get; set; }
+}
+
+[UsedImplicitly]
+public class ExplosionParamsData
+{
+    private static readonly Lazy<ExplosionParams> DefaultExplosionParams = new(() => new ExplosionParams());
+
+    [JsonProperty("muscle_damage")] public RangeF MuscleDamage { get; set; }
+    [JsonProperty("skin_damage")] public RangeF SkinDamage { get; set; }
+    [JsonProperty("skin_damage_chance")] public float SkinDamageChance { get; set; }
+    [JsonProperty("bone_break_chance")] public float BoneBreakChance { get; set; }
+    [JsonProperty("dislocation_chance")] public float DislocationChance { get; set; }
+    [JsonProperty("disfigure_chance")] public float DisfigureChance { get; set; }
+    [JsonProperty("bleed_chance")] public float BleedChance { get; set; }
+    [JsonProperty("bleed_amount")] public RangeF BleedAmount { get; set; }
+    [JsonProperty("structural_damage")] public float StructuralDamage { get; set; }
+    [JsonProperty("range")] public float Range { get; set; }
+    [JsonProperty("velocity")] public float Velocity { get; set; }
+    [JsonProperty("shrapnel_chance")] public float ShrapnelChance { get; set; }
+    [JsonProperty("sound")] public string Sound { get; set; }
+
+    public ExplosionParamsData()
+    {
+        var defaults = DefaultExplosionParams.Value;
+        MuscleDamage = defaults.muscleDamage;
+        SkinDamage = defaults.skinDamage;
+        SkinDamageChance = defaults.skinDamageChance;
+        BoneBreakChance = defaults.boneBreakChance;
+        DislocationChance = defaults.dislocationChance;
+        DisfigureChance = defaults.disfigureChance;
+        BleedChance = defaults.bleedChance;
+        BleedAmount = defaults.bleedAmount;
+        StructuralDamage = defaults.structuralDamage;
+        Range = defaults.range;
+        Velocity = defaults.velocity;
+        ShrapnelChance = defaults.shrapnelChance;
+        Sound = defaults.sound;
+    }
 }
 
 [UsedImplicitly]
 public class CommandData
 {
-    [JsonProperty("once_commands")] public List<string> OnceCommands;
-    [JsonProperty("loop_commands")] public List<string> LoopCommands;
-    [JsonProperty("loop_interval")] public float LoopInterval;
+    [JsonProperty("once_commands")] public List<string> OnceCommands { get; set; }
+    [JsonProperty("loop_commands")] public List<string> LoopCommands { get; set; }
+    [JsonProperty("loop_interval")] public float LoopInterval { get; set; }
 }
 
 [UsedImplicitly]
 public class WaypointData
 {
-    public string Id { get; set; }
-    public Vector2 Position => new(X, Y);
-    public float X { get; set; }
-    public float Y { get; set; }
+    [JsonProperty("id")] public string Id { get; set; }
+
+    [JsonIgnore] public Vector2 Position => new(X, Y);
+
+    [JsonProperty("x")] public float X { get; set; }
+    [JsonProperty("y")] public float Y { get; set; }
 }
 
 [UsedImplicitly]
 public class ItemData
 {
-    public string Id { get; set; }
-    public int Slot { get; set; }
-    public bool Force { get; set; }
+    [JsonProperty("id")] public string Id { get; set; }
+    [JsonProperty("slot")] public int Slot { get; set; }
+    [JsonProperty("force")] public bool Force { get; set; }
 }
 
 [UsedImplicitly]

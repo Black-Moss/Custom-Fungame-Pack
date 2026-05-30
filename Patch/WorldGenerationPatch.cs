@@ -6,7 +6,7 @@ using HarmonyLib;
 using MossLib.Tool;
 using UnityEngine;
 
-namespace CustomFungamePack;
+namespace CustomFungamePack.Patch;
 
 [HarmonyPatch(typeof(WorldGeneration))]
 public static class WorldGenerationPatch

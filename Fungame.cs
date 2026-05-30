@@ -94,6 +94,7 @@ public class Feature
     public int ClimbLimit { get; set; } = 0;
     [JsonProperty("mine")] public MineData MineData { get; set; }
     [JsonProperty("jumppad")] public JumpPadData JumpPadData { get; set; }
+    [JsonProperty("turret")] public TurretData TurretData { get; set; }
 }
 
 [UsedImplicitly]
@@ -101,6 +102,19 @@ public class JumpPadData
 {
     [JsonProperty("cooldown")] public float Cooldown { get; set; } = 15f;
     [JsonProperty("no_light")] public bool NoLight { get; set; }
+    [JsonProperty("force")] public float Force { get; set; } = 1f;
+}
+
+[UsedImplicitly]
+public class TurretData
+{
+    [JsonProperty("cooldown")] public float Cooldown { get; set; } = 15f;
+    [JsonProperty("shot_power_multiplier")] public float ShotPowerMultiplier { get; set; } = 1f;
+    [JsonProperty("range")] public float Range { get; set; } = 100f;
+    [JsonProperty("undestroy")] public bool Undestroy { get; set; }
+    [JsonProperty("no_light")] public bool NoLight { get; set; }
+    [JsonProperty("explosion_params")]
+    public ExplosionParamsData ExplosionParamsData { get; set; }
 }
 
 [UsedImplicitly]

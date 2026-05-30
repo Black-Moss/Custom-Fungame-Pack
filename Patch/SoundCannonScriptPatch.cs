@@ -19,10 +19,6 @@ public class SoundCannonScriptPatch
     private static readonly FieldInfo ChargeTimeField = typeof(SoundCannon).GetField(
         "chargeTime", BindingFlags.NonPublic | BindingFlags.Instance);
 
-    /// <summary>
-    /// Tracks when each cannon instance started charging.
-    /// Used to trigger fire at the configured charge time.
-    /// </summary>
     private static readonly Dictionary<SoundCannon, float> ChargingSince = new();
 
     [HarmonyPatch("Update")]
@@ -34,7 +30,6 @@ public class SoundCannonScriptPatch
 
         try
         {
-            // Set maxDistance BEFORE original Update's distance check
             __instance.maxDistance = data.MaxDistance;
         }
         catch
@@ -55,7 +50,6 @@ public class SoundCannonScriptPatch
             bool isCharging = (bool)(ChargingField?.GetValue(__instance) ?? false);
             bool isSpent = (bool)(SpentField?.GetValue(__instance) ?? false);
 
-            // Track charging start time and force fire at configured charge time
             if (isCharging)
             {
                 if (!ChargingSince.ContainsKey(__instance))
@@ -64,7 +58,6 @@ public class SoundCannonScriptPatch
                 if (ChargingSince.TryGetValue(__instance, out float startTime) &&
                     Time.time - startTime >= data.Cooldown)
                 {
-                    // Force chargeTime past the 5.0 threshold so next frame fires
                     ChargeTimeField?.SetValue(__instance, 5.1f);
                 }
             }
@@ -73,7 +66,6 @@ public class SoundCannonScriptPatch
                 ChargingSince.Remove(__instance);
             }
 
-            // Undestroy: reset spent + chargeTime to allow clean re-trigger
             if (data.Undestroy && isSpent)
             {
                 SpentField?.SetValue(__instance, false);

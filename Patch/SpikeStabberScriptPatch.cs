@@ -13,9 +13,6 @@ public class SpikeStabberScriptPatch
 {
     private static SpikeStabberData SpikeStabberData => FungameCheck.CurrentFungame?.Feature?.SpikeStabberData;
 
-    private static readonly FieldInfo ActivatedField = typeof(SpikeStabberScript).GetField(
-        "activated", BindingFlags.NonPublic | BindingFlags.Instance);
-
     private static readonly FieldInfo LightField = typeof(SpikeStabberScript).GetField(
         "light", BindingFlags.NonPublic | BindingFlags.Instance);
 

@@ -1,4 +1,4 @@
-﻿![alt text](Cover.png)
+﻿![alt text](Covor.png)
 
 [中文指南](README_ZH.md)
 

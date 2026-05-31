@@ -8,6 +8,14 @@ namespace CustomFungamePack.Lang
 
         protected override void BuildLocaleData()
         {
+            // Config
+            Add("config.more_logs.name", "More logs");
+            Add("config.more_logs.description", "Display more logs");
+            Add("config.start_game_use_fungame.name", "Start game use fungame");
+            Add("config.start_game_use_fungame.description", "Use the selected Fungame when starting a new game.");
+            Add("config.first_use_fungame.name", "First use fungame");
+            Add("config.first_use_fungame.description", "The Fungame ID to use when starting a new game. Requires 'Start Use Fungame' to be enabled.");
+            
             // Feature
             Add("feature.fullbright", "Fullbright");
             Add("feature.forgiving_level", "Forgiving Level");
@@ -101,6 +109,15 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.select.success", "Selected {0} (ID: {1})");
             Add("command.fungame.select.without_world", "Selected {0}, but world is not loaded. Map will be loaded when you start a game.");
             Add("command.fungame.select.invalid_index", "Invalid index {0}, please enter a number between 1 and {1}");
+            
+            // Command - Fungame - Config
+            Add("command.fungame.config.set_missing_params", "Please specify configuration name and value to set");
+            Add("command.fungame.config.list_header", "Current configuration settings:");
+            Add("command.fungame.config.item", " {0}({1}): {2}");
+            Add("command.fungame.config.item_description", " {0}");
+            Add("command.fungame.config.set_success", "Configuration '{0}' has been set to {1}");
+            Add("command.fungame.config.not_found", "Configuration not found: {0}");
+            Add("command.fungame.config.invalid_value", "The value of {0} is invalid: {1}");
 
             // Command - Fungame - Exit
             Add("command.fungame.exiting", "Returning to {0}...");

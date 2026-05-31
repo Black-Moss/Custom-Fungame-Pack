@@ -195,7 +195,7 @@ public static class CustomStructuresLoader
 
     private static void MoreInfo(string key, params object[] args)
     {
-        if (Configs.MoreLogs)
+        if (ModConfigs.MoreLogs)
             Info(key, args);
     }
 

@@ -8,6 +8,13 @@ namespace CustomFungamePack.Lang
 
         protected override void BuildLocaleData()
         {
+            // Config
+            Add("config.more_logs.name", "更多日誌");
+            Add("config.more_logs.description", "顯示更多日日誌");
+            Add("config.start_game_use_fungame.name", "開始遊戲使用 Fungame");
+            Add("config.start_game_use_fungame.description", "開啟新遊戲時使用選中的 Fungame");
+            Add("config.first_use_fungame.name", "首選 Fungame");
+            Add("config.first_use_fungame.description", "開始新遊戲時使用的 Fungame ID。需要啟用“開始遊戲使用 Fungame”");
             // Feature
             Add("feature.fullbright", "全亮");
             Add("feature.forgiving_level", "仁慈關卡");
@@ -102,6 +109,15 @@ namespace CustomFungamePack.Lang
             Add("command.fungame.select.without_world", "已選擇 {0}，但世界未加載。地圖將在開始遊戲時加載。");
             Add("command.fungame.select.invalid_index", "無效的索引 {0}，請輸入 1 到 {1} 之間的數字");
 
+            // Command - Fungame - Config
+            Add("command.fungame.config.set_missing_params", "請指定配置名稱和值來設定");
+            Add("command.fungame.config.list_header", "目前組態設定：");
+            Add("command.fungame.config.item", " {0}({1}): {2}");
+            Add("command.fungame.config.item_description", " {0}");
+            Add("command.fungame.config.set_success", "配置 '{0}' 已設定為 {1}");
+            Add("command.fungame.config.not_found", "未找到設定：{0}");
+            Add("command.fungame.config.invalid_value", "{0} 的值無效：{1}");
+            
             // Command - Fungame - Exit
             Add("command.fungame.exiting", "正在返回{0}...");
             Add("command.fungame.exit.invalid_target", "未知的退出目標: {0}，可用: none, tutorial");

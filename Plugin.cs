@@ -1,9 +1,9 @@
+using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using CustomFungamePack.Lang;
 using HarmonyLib;
-using MossLib.Constant;
 using MossLib.Tool;
 
 namespace CustomFungamePack;
@@ -18,6 +18,8 @@ public class Plugin : BaseUnityPlugin
 
     internal new static ManualLogSource Logger;
     private readonly Harmony _harmony = new(Guid);
+    internal static readonly Dictionary<string, ConfigEntryBase> ConfigRegistry = new();
+
     public static ConfigEntry<bool> MoreLogs;
     public static ConfigEntry<bool> StartGameUseFungame;
     public static ConfigEntry<string> FirstUseFungame;
@@ -35,25 +37,13 @@ public class Plugin : BaseUnityPlugin
         _harmony.PatchAll();
         FungameCheck.Initialize();
 
-        MoreLogs = Config.Bind(
-            "General",
-            "MoreLogs",
-            false,
-            "Enable more logs");
-
-        StartGameUseFungame = Config.Bind(
-            "General",
-            "Start Use Fungame",
-            false,
-            "Use the selected Fungame when starting a new game.");
-
-        FirstUseFungame = Config.Bind(
-            "General",
-            "First Use Fungame",
-            TemplateFungame.Id,
-            "The Fungame ID to use when starting a new game. Requires 'Start Use Fungame' to be enabled.");
-
-        Configs.ReloadConfigs();
+        MoreLogs = RegisterConfig("more_logs", false,
+            ConfigLocale("more_logs.description"));
+        StartGameUseFungame = RegisterConfig("start_game_use_fungame", false,
+            ConfigLocale("start_game_use_fungame.description"));
+        FirstUseFungame = RegisterConfig("first_use_fungame", TemplateFungame.Id,
+            ConfigLocale("first_use_fungame.description"));
+        ModConfigs.ReloadConfigs();
     }
 
     public static readonly Fungame TemplateFungame = new()
@@ -245,4 +235,46 @@ public class Plugin : BaseUnityPlugin
             }
         ]
     };
+
+    private ConfigEntry<T> RegisterConfig<T>(string key, T defaultValue, string description)
+    {
+        var entry = Config.Bind("General", key, defaultValue, description);
+        ConfigRegistry[key] = entry;
+        return entry;
+    }
+
+    public static object GetConfigValue(string key)
+    {
+        return ConfigRegistry.TryGetValue(key, out var entry)
+            ? entry.BoxedValue
+            : null;
+    }
+
+    public static bool SetConfigValue(string key, object value)
+    {
+        if (!ConfigRegistry.TryGetValue(key, out var entry))
+            return false;
+
+        try
+        {
+            var converted = System.Convert.ChangeType(value, entry.SettingType);
+            entry.BoxedValue = converted;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static bool HasConfig(string key) => ConfigRegistry.ContainsKey(key);
+
+    private static string ConfigLocale(string key)
+    {
+        return Locale($"config.{key}");
+    }
+    private static string Locale(string key)
+    {
+        return ModLocale.GetFormat(key);
+    }
 }

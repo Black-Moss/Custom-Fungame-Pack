@@ -46,13 +46,13 @@ public static class WorldGenerationPatch
             WorldGeneration.biomeOverride = ExitTargetScene.Value;
             MoreLogs("scene_type_set", ExitTargetScene.Value);
         }
-        else if (Configs.StartGameUseFungame)
+        else if (ModConfigs.StartGameUseFungame)
         {
             Fungame fungame = null;
 
-            if (!string.IsNullOrEmpty(Configs.FirstUseFungame))
+            if (!string.IsNullOrEmpty(ModConfigs.FirstUseFungame))
             {
-                var targetId = Configs.FirstUseFungame;
+                var targetId = ModConfigs.FirstUseFungame;
                 fungame = FungameCheck.Fungames.FirstOrDefault(f =>
                     f != null &&
                     (f.Id?.Equals(targetId, StringComparison.OrdinalIgnoreCase) == true ||
@@ -315,7 +315,7 @@ public static class WorldGenerationPatch
 
     private static void MoreLogs(string key, params object[] args)
     {
-        if (Configs.MoreLogs)
+        if (ModConfigs.MoreLogs)
             Info(key, args);
     }
 

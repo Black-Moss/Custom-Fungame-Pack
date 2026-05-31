@@ -28,6 +28,7 @@ public class ModCommand : ModCommandBase
     private static bool _autofillRegistered;
     private static List<string> _cachedFeatureNames = [];
     private static List<string> _cachedFungameIds = [];
+    private static List<string> _cachedConfigs = [];
 
     [HarmonyPatch("RegisterAllCommands")]
     [HarmonyPostfix]
@@ -49,6 +50,7 @@ public class ModCommand : ModCommandBase
                         "feature",
                         "waypoint",
                         "save",
+                        "config",
                         "exit"
                     ]
                 }
@@ -177,15 +179,6 @@ public class ModCommand : ModCommandBase
         var contextList = new List<string>();
         string subcommand = args[1].ToLower();
 
-        // for (int i = 0; i < _cachedFeatureNames.Count; i++)
-        // {
-        //     string name = _cachedFeatureNames[i];
-        //     if (name.EndsWith("data"))
-        //     {
-        //         _cachedFeatureNames[i] = name.Substring(0, name.Length - 4);
-        //     }
-        // }
-
         switch (subcommand)
         {
             case "feature":
@@ -197,12 +190,16 @@ public class ModCommand : ModCommandBase
                     contextList.AddRange(_cachedFungameIds);
                 break;
             case "waypoint":
-                contextList.AddRange(["list", "get", "help"]);
+                contextList.AddRange(["list", "get"]);
                 break;
             case "save":
                 contextList.Add("as");
                 if (_cachedFungameIds is { Count: > 0 })
                     contextList.AddRange(_cachedFungameIds);
+                break;
+            case "config":
+                contextList.AddRange(
+                    Plugin.ConfigRegistry.Select(config => config.Key));
                 break;
             case "exit":
                 contextList.AddRange(["tutorial", "none"]);
@@ -260,6 +257,9 @@ public class ModCommand : ModCommandBase
                 case "save":
                     HandleSave(args);
                     break;
+                case "config":
+                    HandleConfig(args);
+                    break;
                 case "exit":
                     HandleExit(args);
                     break;
@@ -267,6 +267,69 @@ public class ModCommand : ModCommandBase
         }
     }
 
+    private static void HandleConfig(string[] args)
+    {
+        if (args.Length < 3)
+        {
+            ListConfig();
+            return;
+        }
+
+        string configName = args[2];
+        if (!Plugin.HasConfig(configName))
+        {
+            ErrorFungame("config.not_found", configName);
+            return;
+        }
+
+        if (args.Length == 3)
+        {
+            object current = Plugin.GetConfigValue(configName);
+            if (current is bool boolVal)
+            {
+                bool newVal = !boolVal;
+                Plugin.SetConfigValue(configName, newVal);
+                InfoFungame("config.set_success", configName, newVal);
+            }
+            else
+            {
+                ErrorFungame("config.invalid_value", configName, args[3]);
+            }
+            return;
+        }
+
+        object newValue = args[3];
+        if (Plugin.SetConfigValue(configName, newValue))
+        {
+            InfoFungame("config.set_success", configName, newValue);
+        }
+        else
+        {
+            ErrorFungame("config.set_failed", configName, newValue);
+        }
+    }
+    private static void ListConfig()
+    {
+        Log.Divider();
+        InfoFungame("config.list_header");
+
+        foreach (var kvp in Plugin.ConfigRegistry)
+        {
+            string key = kvp.Key;
+            object value = kvp.Value.BoxedValue;
+            string displayName = Locale($"config.{key}.name");
+            string description = Locale($"config.{key}.description");
+
+            InfoFungame("config.item", displayName, key, value);
+
+            if (!string.IsNullOrEmpty(description) && description != $"config.{key}.description")
+            {
+                InfoFungame("config.item_description", description);
+            }
+        }
+
+        Log.Divider();
+    }
     private static void HandleWaypoint(string[] args)
     {
         if (!EnsureWorldLoaded()) return;

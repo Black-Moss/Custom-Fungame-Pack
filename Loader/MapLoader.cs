@@ -559,7 +559,7 @@ public static class MapLoader
 
     private static void MoreLogs(string key, params object[] args)
     {
-        if (Configs.MoreLogs)
+        if (ModConfigs.MoreLogs)
             Info(key, args);
     }
 

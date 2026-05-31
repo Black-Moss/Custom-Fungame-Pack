@@ -96,11 +96,11 @@ public class MapData
 [UsedImplicitly]
 public class Feature
 {
-    [JsonProperty("fullbright")]public bool Fullbright { get; set; } = true;
-    [JsonProperty("forgiving_level")]public bool ForgivingLevel { get; set; }
-    [JsonProperty("gravity")]public float Gravity { get; set; } = Physics2D.gravity.y;
-    [JsonProperty("jump_limit")]public int JumpLimit { get; set; } = 0;
-    [JsonProperty("climb_limit")]public int ClimbLimit { get; set; } = 0;
+    [JsonProperty("fullbright")] public bool Fullbright { get; set; } = true;
+    [JsonProperty("forgiving_level")] public bool ForgivingLevel { get; set; }
+    [JsonProperty("gravity")] public float Gravity { get; set; } = Physics2D.gravity.y;
+    [JsonProperty("jump_limit")] public int JumpLimit { get; set; } = 0;
+    [JsonProperty("climb_limit")] public int ClimbLimit { get; set; } = 0;
     [JsonProperty("mine")] public MineData MineData { get; set; }
     [JsonProperty("jump_pad")] public JumpPadData JumpPadData { get; set; }
     [JsonProperty("turret")] public TurretData TurretData { get; set; }
